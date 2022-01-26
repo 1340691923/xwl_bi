@@ -1,0 +1,81 @@
+{
+  "manager": {
+    "port": 8090,
+    "jwtSecret": "1340691923@qq.com",
+    "deBug": true
+  },
+  "report": {
+    "reportPort":8091,
+    "readTimeout":20,
+    "writeTimeout":20,
+    "maxConnsPerIP":100000,
+    "maxRequestsPerConn":100000,
+    "idleTimeout":20,
+    "userAgentBanList":["mpcrawler"]
+  },
+  "sinker": {
+    "reportAcceptStatus":{
+      "bufferSize": 999,
+      "flushInterval": 2
+    },
+    "reportData2CK":{
+      "bufferSize": 1000,
+      "flushInterval": 2
+    },
+    "realTimeWarehousing":{
+      "bufferSize": 1000,
+      "flushInterval": 2
+    },
+    "pprofHttpPort": 8093
+  },
+  "comm": {
+    "log": {
+      "storageDays":4,
+      "logDir":"logs"
+    },
+    "mysql": {
+      "username":"root",
+      "pwd":"123456",
+      "ip":"127.0.0.1",
+      "port":"3306",
+      "dbName":"lyn_bi",
+      "maxOpenConns":10,
+      "maxIdleConns":10
+    },
+    "clickhouse": {
+      "username":"default",
+      "pwd":"EtHnvllx",
+      "ip":"127.0.0.1",
+      "port":"9000",
+      "dbName":"default",
+      "clusterName":"perftest_3shards_1replicas",
+      "macrosShardKeyName":"share",
+      "macrosReplicaKeyName":"replica",
+      "maxOpenConns":100,
+      "maxIdleConns":1000
+    },
+    "kafka": {
+      "addresses":["127.0.0.1:9092"],
+      "username":"",
+      "password":"",
+      "numPartitions":300,
+      "debugDataTopicName": "debugDataTopicName",
+      "debugDataGroup": "debugDataGroup",
+      "reportTopicName": "test005",
+      "reportData2CKGroup": "reportData2CKGroup2",
+      "realTimeDataGroup": "realTimeDataGroup2"
+    },
+    "elasticSearch": {
+      "Addresses":["http://127.0.0.1:9200"],
+      "Username":"",
+      "Password":""
+    },
+    "redis": {
+      "addr":"127.0.0.1:6379",
+      "passwd":"",
+      "db": 7,
+      "maxIdle": 300,
+      "maxActive": 0
+    }
+  }
+}

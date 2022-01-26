@@ -1,0 +1,73 @@
+
+.login-container {
+
+  height: 100%;
+  width: 100%;
+  background-color: rgb(245, 250, 255);
+  overflow-y: auto;
+  min-width: 1200px;
+  background-image: url("~@/assets/img/loginbg.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 100%;
+
+}
+
+.Login_loginWrapper {
+  justify-content: space-between;
+  padding: 6% 120px;
+  margin: auto;
+  box-sizing: border-box;
+  display: flex;
+
+}
+
+.TextBox_productName {
+  margin-top: 50px;
+  color: lightskyblue;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 4px;
+  text-align: left;
+}
+
+.TextBox_productDesc {
+  margin: 8px 0 0;
+  color: lightskyblue;
+  font-weight: 500;
+  font-size: 40px;
+  line-height: 56px;
+  letter-spacing: 10px;
+}
+
+.TextBox_productSubDesc {
+  margin: 8px 0 0;
+  color: lightskyblue;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 4px;
+}
+
+.LoginBox_boxWrap {
+  width: 480px;
+  margin-top: 50px;
+  padding: 48px 60px 30px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: lightgrey;
+  box-sizing: border-box;
+}
+
+.LoginBox_headerText {
+  color: lightgrey;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 44px;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.login-form {
+  margin-top: 40px;
+}

@@ -1,0 +1,92 @@
+import request from '@/utils/request'
+
+export function login(data) {
+  return request({
+    url: '/api/gm_user/login',
+    method: 'post',
+    data
+  })
+}
+
+export function getInfo() {
+  return request({
+    url: '/api/gm_user/info',
+    method: 'post'
+  })
+}
+
+export function logout() {
+  return request({
+    url: '/api/gm_user/logout',
+    method: 'post'
+  })
+}
+
+export function userList() {
+  return request({
+    url: '/api/gm_user/userlist',
+    method: 'post'
+  })
+}
+
+export function roleOption() {
+  return request({
+    url: '/api/gm_user/roleOption',
+    method: 'post'
+  })
+}
+
+export function getUserById(data) {
+  return request({
+    url: '/api/gm_user/getUserById',
+    method: 'post',
+    data
+  })
+}
+
+export function UpdateUser(data) {
+  return request({
+    url: '/api/gm_user/UpdateUser',
+    method: 'post',
+    data
+  })
+}
+
+export function InsertUser(data) {
+  return request({
+    url: '/api/gm_user/InsertUser',
+    method: 'post',
+    data
+  })
+}
+
+export function Ban(data) {
+  return request({
+    url: '/api/gm_user/ban',
+    method: 'post',
+    data
+  })
+}
+
+export function ModifyPwd(data) {
+  return request({
+    url: '/api/gm_user/ModifyPwd',
+    method: 'post',
+    data
+  })
+}
+
+export function DelUser(data) {
+  return request({
+    url: '/api/gm_user/DelUser',
+    method: 'post',
+    data
+  })
+}
+
+export function GetAddUserCount() {
+  return request({
+    url: '/api/GetAddUserCount',
+    method: 'post'
+  })
+}

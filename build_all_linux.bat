@@ -1,0 +1,2 @@
+cmd /k "cd vue && npm run build:prod && cd .. && set goos=linux&&go build -o bin/linux/manager cmd/manager/main.go  && go build  -o bin/linux/report_server cmd/report_server/main.go && go build -o bin/linux/sinker cmd/sinker/main.go && go build  -o bin/linux/init_app cmd/init_app/main.go"
+echo "build success"

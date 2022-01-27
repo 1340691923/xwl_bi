@@ -35,7 +35,7 @@ func Init() *App {
 		)
 
 	app.Post("/api/gm_user/login", ManagerUserController{}.Login)
-
+	routerWebsocket(app)
 	app.Use(
 		Timer,
 		JwtMiddleware,
@@ -44,7 +44,6 @@ func Init() *App {
 
 	runRouterGroupFn(
 		app,
-		routerWebsocket,
 		runOperaterLog,
 		runGmUser,
 		runRealData,

@@ -6,14 +6,13 @@
           <template slot="title">
             <span>添加distinctId为白名单（仅适用于客户端SDK），并开启Debug模式。设备ID可通过查看客户端日志获取。该模式的作用及使用过程请参考官网文档对应SDK页面中的Debug模式说明部分。</span>
           </template>
-          <span class="title_xwl" style="color: #202d3f">Debug模式&nbsp<a-icon type="question-circle" />
+          <span class="title_xwl" style="color: #202d3f">Debug模式&nbsp<a-icon type="question-circle"/>
           </span>
         </a-tooltip>
 
       </div>
       <div
-        style="height: 60px;line-height: 50px;display: flex;align-items: center;justify-content: space-between;border-bottom: 1px solid #f0f2f5"
-      >
+        style="height: 60px;line-height: 50px;display: flex;align-items: center;justify-content: space-between;border-bottom: 1px solid #f0f2f5">
         <div>
           <a-button @click="openDeviceDialog">查看distinctId列表</a-button>
           <template v-if="linkedID!=''">
@@ -23,22 +22,15 @@
 
         </div>
         <div>
-          <a-input-search
-            v-model="input"
-            allow-clear
-            placeholder="请输入搜索（如distinctId,事件名...）"
-            style="width: 200px"
-            @change="search"
-          />
+          <a-input-search v-model="input" allow-clear placeholder="请输入搜索（如distinctId,事件名...）" style="width: 200px"
+                          @change="search"/>
         </div>
       </div>
-      <el-table
-        v-if="showList"
-        v-loading="connectLoading"
-        border
-        :data="filterList"
-        stripe
-        style="width: 100%"
+      <el-table border v-if="showList"
+                v-loading="connectLoading"
+                :data="filterList"
+                stripe
+                style="width: 100%"
       >
         <el-table-column
           prop="report_time"
@@ -76,7 +68,7 @@
                 <template slot="title">
                   <span>格式化数据</span>
                 </template>
-                <a-button type="link" icon="eye" @click="lookData(scope.row.index,true)" />
+                <a-button type="link" icon="eye" @click="lookData(scope.row.index,true)"/>
               </a-tooltip>
             </div>
             <div v-else>
@@ -93,7 +85,7 @@
                 <template slot="title">
                   <span>还原数据</span>
                 </template>
-                <a-button style="color: red" type="link" icon="eye-invisible" @click="lookData(scope.row.index,false)" />
+                <a-button style="color: red" type="link" icon="eye-invisible" @click="lookData(scope.row.index,false)"/>
               </a-tooltip>
             </div>
           </template>
@@ -110,27 +102,20 @@
         @size-change="handleSizeChange"
         @current-change="handlePageChange"
       />
-      <el-dialog
-        v-if="dialogVisible"
-        width="80%"
-        :visible.sync="dialogVisible"
-        title="测试distinctId管理"
-        @close="dialogVisible = false"
-      >
+      <el-dialog v-if="dialogVisible" width="80%" :visible.sync="dialogVisible" title="测试distinctId管理"
+                 @close="dialogVisible = false">
         <el-card class="app-container">
           <div class="filter-container">
             <el-tag class="filter-item">distinctId:</el-tag>
-            <el-input v-model="deviceId" style="width: 300px" placeholder="请输入distinctId" class="filter-item" />
+            <el-input v-model="deviceId" style="width: 300px" placeholder="请输入distinctId" class="filter-item"/>
             <el-tag class="filter-item">备注:</el-tag>
-            <el-input v-model="remark" style="width: 200px" placeholder="请输入备注" class="filter-item" />
+            <el-input v-model="remark" style="width: 200px" placeholder="请输入备注" class="filter-item"/>
             <el-button class="filter-item" type="primary" @click="addDeviceId">添加</el-button>
           </div>
-          <el-table
-            v-if="showDebugDeviceList"
-            border
-            :data="debugDeviceList"
-            stripe
-            style="width: 100%"
+          <el-table border v-if="showDebugDeviceList"
+                    :data="debugDeviceList"
+                    stripe
+                    style="width: 100%"
           >
             <el-table-column
               label="测试distinctId"
@@ -165,15 +150,10 @@
               align="center"
             >
               <template slot-scope="scope">
-                <el-button
-                  v-if="scope.row.device_id!=linkedID"
-                  size="mini"
-                  type="success"
-                  icon="el-icon-link"
-                  @click="initWs(scope.row.device_id)"
-                >连接设备
+                <el-button size="mini" type="success" icon="el-icon-link" v-if="scope.row.device_id!=linkedID"
+                           @click="initWs(scope.row.device_id)">连接设备
                 </el-button>
-                <el-button v-else size="mini" type="warning" icon="el-icon-link" @click="closeWs()">断开连接</el-button>
+                <el-button size="mini" type="warning" icon="el-icon-link" v-else @click="closeWs()">断开连接</el-button>
                 <el-button size="mini" type="danger" icon="el-icon-close" @click="delteDeviceId(scope.row.device_id)">
                   删除
                 </el-button>
@@ -189,9 +169,9 @@
 
 <script>
 
-import { AddDebugDeviceID, DebugDeviceIDList, DelDebugDeviceID } from '@/api/realdata'
-import { filterData } from '@/utils/table'
-import { getToken } from '@/utils/auth'
+import {AddDebugDeviceID, DebugDeviceIDList, DelDebugDeviceID} from '@/api/realdata'
+import {filterData} from '@/utils/table'
+import {getToken} from '@/utils/auth'
 
 export default {
 
@@ -217,7 +197,7 @@ export default {
       deviceId: '',
       remark: '',
       linkedID: '',
-      socket: null
+      socket: null,
     }
   },
   computed: {
@@ -227,8 +207,15 @@ export default {
       return table
     },
     path() {
-      const api = process.env.VUE_APP_BASE_API
-      return api.replace('http', 'ws') + '/ws'
+      let api = process.env.VUE_APP_BASE_API
+
+      if(api == ""){
+
+        return "ws://"+ window.location.host+"/ws"
+
+      }
+
+      return api.replace("http", "ws") + "/ws"
     }
   },
   mounted() {
@@ -246,7 +233,7 @@ export default {
       }
     },
     async delteDeviceId(deviceId) {
-      const res = await DelDebugDeviceID({ 'appid': this.$store.state.baseData.EsConnectID, deviceID: deviceId })
+      const res = await DelDebugDeviceID({'appid': this.$store.state.baseData.EsConnectID, deviceID: deviceId})
       if (res.code != 0) {
         this.$message({
           showClose: true,
@@ -300,7 +287,7 @@ export default {
     },
     async deviceList() {
       this.connectLoading = true
-      const res = await DebugDeviceIDList({ 'appid': this.$store.state.baseData.EsConnectID })
+      const res = await DebugDeviceIDList({'appid': this.$store.state.baseData.EsConnectID})
       this.connectLoading = false
       if (res.code != 0) {
         this.$message({
@@ -312,7 +299,7 @@ export default {
         return
       }
 
-      const list = res.data.list
+      let list = res.data.list
       this.debugDeviceList = []
       if (list != null) {
         this.debugDeviceList = list
@@ -350,45 +337,45 @@ export default {
     },
     initWs(uuid) {
       this.closeWs()
-      if (this.linkedID != '' && uuid != this.linkedID) {
+      if (this.linkedID != "" && uuid != this.linkedID) {
         this.list = []
       }
 
-      if (typeof (WebSocket) === 'undefined') {
+      if (typeof (WebSocket) === "undefined") {
         this.$message({
           showClose: true,
           offset: 60,
           type: 'error',
-          message: '您的浏览器不支持socket'
+          message: "您的浏览器不支持socket"
         })
       } else {
         // 实例化socket
         this.socket = new WebSocket(this.path)
         // 监听socket连接
         this.socket.onopen = () => {
-          this.send(JSON.stringify({ uuid: uuid, token: getToken() }))
+          this.send(JSON.stringify({uuid: uuid, token: getToken()}))
           this.$message({
             showClose: true,
             offset: 60,
             type: 'success',
-            message: 'socket连接成功'
+            message: "socket连接成功"
           })
         }
         // 监听socket错误信息
         this.socket.onerror = (err) => {
-          console.log('onerror', err)
+          console.log("onerror", err)
           this.$message({
             showClose: true,
             offset: 60,
             type: 'error',
-            message: 'socket连接失败'
+            message: "socket连接失败",
           })
         }
         // 监听socket消息
         this.socket.onmessage = (msg) => {
-          const res = JSON.parse(msg.data)
+          let res = JSON.parse(msg.data)
           if (res.code == 1) {
-            const data = JSON.parse(res.data)
+            let data = JSON.parse(res.data)
             data['isFormatData'] = false
             data['index'] = this.list.length
             data['dataFormat'] = JSON.stringify(JSON.parse(data['report_data']), null, '\t')
@@ -399,11 +386,11 @@ export default {
         this.socket.onclose = (res) => {
           if (res.code == 1006) {
             setTimeout(() => {
-              console.log('进行重连')
+              console.log("进行重连")
               this.initWs(uuid)
             }, 2000)
           }
-          console.log('socket已经关闭')
+          console.log("socket已经关闭")
         }
         this.linkedID = uuid
       }
@@ -412,7 +399,7 @@ export default {
       this.socket.send(data)
     },
     async search() {
-      const list = filterData(this.list, this.input.trim())
+      let list = filterData(this.list, this.input.trim())
       this.list = list
     }
   }

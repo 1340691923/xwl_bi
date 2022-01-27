@@ -20,7 +20,7 @@ func (this RealDataService) FailDataList(minutes int,appid int) (failDataResList
 			toStartOfInterval(a.part_date, INTERVAL `+strconv.Itoa(minutes)+`  minute) as interval_date,
 			formatDateTime(interval_date,'%Y-%m-%d') as year ,formatDateTime(interval_date,'%H:%M') as start_minute, formatDateTime(addMinutes(interval_date, ?),'%H:%M') as end_minute,
 			count(report_data) as count,a.error_reason,a.error_handling,report_type 
-			from (select * from xwl_acceptance_status where table_id = ? and status = ? limit 1000 ) a
+			from (select * from xwl_acceptance_status where table_id = ? and status = ? order by part_date desc limit 1000 ) a
 			group by interval_date,a.error_reason,a.error_handling,report_type
 			order by interval_date desc;
 	`,minutes,appid,consumer_data.FailStatus)

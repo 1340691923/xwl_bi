@@ -6,7 +6,6 @@ import (
 	"github.com/1340691923/xwl_bi/model"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"github.com/1340691923/xwl_bi/router"
-	"github.com/fsnotify/fsnotify"
 	"go.uber.org/zap"
 	"log"
 	"os"
@@ -29,7 +28,6 @@ type App struct {
 	configFileExt,
 	appName string
 	cmdName             string
-	monitorConfigChange bool
 	InitFnObservers     []InitFnObserver
 	err                 error
 	deferFuncs          []func()
@@ -84,11 +82,6 @@ func NewApp(cmdName string, opts ...NewAppOptions) *App {
 	return app
 }
 
-func (this *App) MonitorConfigChange() *App {
-	this.monitorConfigChange = true
-	return this
-}
-
 // 初始化配置
 func (this *App) InitConfig() *App {
 	config := viper.New()
@@ -108,29 +101,6 @@ func (this *App) InitConfig() *App {
 
 	model.CmdName = this.cmdName
 
-	if this.monitorConfigChange {
-		config.OnConfigChange(func(e fsnotify.Event) {
-			log.Println("检测配置文件更新，应用配置修改中...")
-			if err := config.ReadInConfig(); err != nil {
-				log.Println("应用配置修改失败", err)
-				return
-			}
-			if err := config.Unmarshal(&model.GlobConfig); err != nil {
-				log.Println("应用配置修改失败", err)
-				return
-			}
-
-			this.Close()
-
-			if err := this.NotifyInitFnObservers().Error(); err != nil {
-				log.Println("应用配置修改失败", err)
-				return
-			}
-			log.Println("应用配置修改完成！")
-		})
-	}
-
-	config.WatchConfig()
 	return this
 }
 

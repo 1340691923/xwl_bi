@@ -41,7 +41,6 @@ func main() {
 
 	err := app.InitConfig().
 		NotifyInitFnObservers().
-		MonitorConfigChange().
 		Error()
 
 	if err != nil {

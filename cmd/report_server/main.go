@@ -53,7 +53,7 @@ func main() {
 		application.RegisterInitFnObserver(application.RefreshTableId),
 	)
 
-	err := app.InitConfig().NotifyInitFnObservers().MonitorConfigChange().Error()
+	err := app.InitConfig().NotifyInitFnObservers().Error()
 
 	if err != nil {
 		logs.Logger.Error("数据系统 初始化失败", zap.Error(err))

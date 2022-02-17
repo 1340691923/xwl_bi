@@ -44,11 +44,8 @@ func (this *ReportData2CK) Flush() (err error) {
 
 	rowsMap := map[string][][]interface{}{}
 	for _, data := range this.buffer {
-
 		for tableName, metric := range data {
-
 			rows := [][]interface{}{}
-
 			if _, haveKey := rowsMap[tableName]; haveKey {
 				rows = rowsMap[tableName]
 			} else {
@@ -98,7 +95,6 @@ func (this *ReportData2CK) Flush() (err error) {
 				logs.Logger.Error("CK入库失败", zap.Error(err))
 				return false
 			}
-			log.Println("insertSql",insertSql)
 			stmt, err := tx.Prepare(insertSql)
 			if err != nil {
 				logs.Logger.Error("CK入库失败", zap.Error(err))

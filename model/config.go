@@ -28,7 +28,7 @@ type Config struct {
 }
 
 type ManagerConfig struct{
-	Port            int `json:"port"`		//铸龙分析系统http启动端口
+	Port            uint16 `json:"port"`		//铸龙分析系统http启动端口
 	CkQueryLimit      int `json:"ckQueryLimit"`	//clickhouse 查询限流器阈值
 	CkQueryExpiration int `json:"ckQueryExpiration"` //clickhouse 查询限流器阈值
 	JwtSecret string   `json:"jwtSecret"`
@@ -39,7 +39,7 @@ type SinkerConfig struct {
 	ReportAcceptStatus  BatchConfig `json:"reportAcceptStatus"`
 	ReportData2CK       BatchConfig `json:"reportData2CK"`
 	RealTimeWarehousing BatchConfig `json:"realTimeWarehousing"`
-	PprofHttpPort       int `json:"pprofHttpPort"`
+	PprofHttpPort       uint16 `json:"pprofHttpPort"`
 }
 
 type RedisConfig struct {
@@ -80,7 +80,7 @@ type MysqlConfig struct {
 }
 
 type ReportConfig struct {
-	ReportPort         int `json:"reportPort"`//上报程序启动端口
+	ReportPort         uint16 `json:"reportPort"`//上报程序启动端口
 	ReadTimeout        int `json:"readTimeout"`
 	WriteTimeout       int `json:"writeTimeout"`
 	MaxConnsPerIP      int `json:"maxConnsPerIP"`
@@ -116,11 +116,11 @@ func (this *Config) GetKafkaCfgProducerType() string {
 }
 
 type KafkaCfg struct {
+	NumPartitions      int32    `json:"numPartitions"`
 	Addresses          []string `json:"addresses"`
 	Username           string   `json:"username"`
 	Password           string   `json:"password"`
 	ReportTopicName    string   `json:"reportTopicName"`
-	NumPartitions      int32    `json:"numPartitions"`
 	ConsumerGroupName  string   `json:"consumerGroupName"`
 	RealTimeDataGroup  string   `json:"realTimeDataGroup"`
 	ReportData2CKGroup string   `json:"reportData2CKGroup"`

@@ -10,9 +10,9 @@ import (
 // GmUserModel BI用户
 type GmUserModel struct {
 	ID            int32  `json:"id" db:"id"`
+	RoleId        int32  `json:"role_id" db:"role_id"`
 	Username      string `json:"username" db:"username"`
 	Password      string `json:"password" db:"password"`
-	RoleId        int32  `json:"role_id" db:"role_id"`
 	Realname      string `json:"realname" db:"realname"`
 	CreateTime    string `db:"create_time" json:"create_time"`
 	UpdateTime    string `db:"update_time" json:"update_time"`

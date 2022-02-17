@@ -38,7 +38,6 @@ func init() {
 
 // By 肖文龙
 func main() {
-	log.Println("configFileDir", configFileDir)
 	app := application.NewApp(
 		"report_server",
 		application.WithConfigFileDir(configFileDir),

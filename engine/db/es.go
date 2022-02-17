@@ -13,7 +13,7 @@ func NewEsClient(address []string, username, password string) (esClient *elastic
 		optList = append(optList, elastic.SetBasicAuth(username, password))
 	}
 
-	esClient, err = elastic.NewClient(optList...)
+	esClient, err = elastic.NewSimpleClient(optList...)
 
 	return
 }

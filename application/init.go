@@ -162,7 +162,7 @@ func InitRbac() (fn func(), err error) {
 func InitOpenWinBrowser() (fn func(), err error) {
 	config := model.GlobConfig
 	if !config.Manager.DeBug {
-		port := ":" + strconv.Itoa(config.Manager.Port)
+		port := ":" + strconv.Itoa(int(config.Manager.Port))
 		uri := fmt.Sprintf("%s%s", "http://127.0.0.1", port)
 		util.OpenWinBrowser(uri)
 		log.Println(fmt.Sprintf("将打开浏览器！地址为：%v",

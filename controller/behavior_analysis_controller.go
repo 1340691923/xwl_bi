@@ -17,7 +17,7 @@ type BehaviorAnalysisController struct {
 func (this BehaviorAnalysisController) GetConfigs(ctx *fiber.Ctx) error {
 
 	type ReqData struct {
-		Appid int `json:"appid"`
+		Appid int32 `json:"appid"`
 	}
 	var reqData ReqData
 	err := ctx.BodyParser(&reqData)
@@ -27,7 +27,7 @@ func (this BehaviorAnalysisController) GetConfigs(ctx *fiber.Ctx) error {
 
 	behaviorAnalysisService := analysis.BehaviorAnalysisService{}
 
-	eventNameList, attributeMap, err := behaviorAnalysisService.GetConfigs(reqData.Appid)
+	eventNameList, attributeMap, err := behaviorAnalysisService.GetConfigs(int(reqData.Appid))
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -72,7 +72,7 @@ func (this BehaviorAnalysisController) LoadPropQuotas(ctx *fiber.Ctx) error {
 func (this BehaviorAnalysisController) GetValues(ctx *fiber.Ctx) error {
 
 	type ReqData struct {
-		Appid int    `json:"appid"`
+		Appid int32    `json:"appid"`
 		Table string `json:"table"`
 		Col   string `json:"col"`
 	}
@@ -82,7 +82,7 @@ func (this BehaviorAnalysisController) GetValues(ctx *fiber.Ctx) error {
 		return this.Error(ctx, err)
 	}
 
-	appid := strconv.Itoa(reqData.Appid)
+	appid := strconv.Itoa(int(reqData.Appid))
 	table := reqData.Table
 	col := reqData.Col
 

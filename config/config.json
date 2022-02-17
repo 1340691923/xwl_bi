@@ -36,7 +36,7 @@
     "mysql": {
       "username":"root",
       "pwd":"123456",
-      "ip":"127.0.0.1",
+      "ip":"192.168.1.236",
       "port":"3306",
       "dbName":"lyn_bi",
       "maxOpenConns":10,
@@ -45,7 +45,7 @@
     "clickhouse": {
       "username":"default",
       "pwd":"EtHnvllx",
-      "ip":"127.0.0.1",
+      "ip":"192.168.1.236",
       "port":"9000",
       "dbName":"default",
       "clusterName":"perftest_3shards_1replicas",
@@ -55,7 +55,7 @@
       "maxIdleConns":1000
     },
     "kafka": {
-      "addresses":["127.0.0.1:9092"],
+      "addresses":["192.168.1.236:9092"],
       "username":"",
       "password":"",
       "numPartitions":300,
@@ -66,12 +66,12 @@
       "realTimeDataGroup": "realTimeDataGroup2"
     },
     "elasticSearch": {
-      "Addresses":["http://127.0.0.1:9200"],
+      "Addresses":["http://192.168.1.236:9200"],
       "Username":"",
       "Password":""
     },
     "redis": {
-      "addr":"127.0.0.1:6379",
+      "addr":"192.168.1.236:6379",
       "passwd":"",
       "db": 7,
       "maxIdle": 300,

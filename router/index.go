@@ -42,7 +42,7 @@ func Init() *App {
 		Rbac,
 		)
 
-	runRouterGroupFn(
+	return runRouterGroupFn(
 		app,
 		runOperaterLog,
 		runGmUser,
@@ -53,13 +53,13 @@ func Init() *App {
 		runApp,
 		runUserGroup,
 	)
-	return app
 }
 
 type routerGroupFn func(app *App)
 
-func runRouterGroupFn(app *App, fns ...routerGroupFn) {
+func runRouterGroupFn(app *App, fns ...routerGroupFn) *App {
 	for _, fn := range fns {
 		fn(app)
 	}
+	return app
 }

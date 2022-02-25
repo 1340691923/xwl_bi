@@ -107,11 +107,7 @@
         <el-divider style="margin-bottom: 60px;">
           <el-button v-loading="loadingMore" icon="el-icon-arrow-down" type="primary" @click="more">加载更多</el-button>
         </el-divider>
-        <!--<a href="#top">
-          <div  class="el-backtop" style="bottom: 40px;right: 40px">
-            <i  class="el-icon-caret-top" ></i>
-          </div>
-        </a>-->
+
         <el-backtop target=".right_res" :bottom="100" :right="100">
           <div
             style="{
@@ -228,6 +224,9 @@ export default {
     },
     async more() {
       this.loadingMore = true
+      if(this.page == 1){
+        this.page = this.page + 1
+      }
       const status = await this.getDescList()
       this.loadingMore = false
       if (status == 1) {
@@ -335,6 +334,7 @@ export default {
       this.refreshPage()
     },
     changeLockEvent() {
+      this.page = 1
       this.getDescList(true)
     },
     async changeOrderBy(orderBy) {

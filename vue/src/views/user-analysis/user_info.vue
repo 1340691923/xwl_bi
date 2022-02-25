@@ -49,7 +49,7 @@
         <template slot="paneR">
           <a-spin tip="计算中..." :spinning="spinning">
             <div class="spin-content">
-              <user-info-res :user_id="uid" />
+              <user-info-res :userId="uid" />
             </div>
           </a-spin>
         </template>

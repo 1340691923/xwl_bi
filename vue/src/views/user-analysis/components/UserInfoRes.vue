@@ -164,7 +164,7 @@ export default {
       form: {
         date: [],
         eventNames: [],
-        userId: this.user_id,
+        userId: this.userId,
         windowTimeFormat: '按天'
       },
       eventName: '',
@@ -172,7 +172,7 @@ export default {
         sortRule: 'desc',
         date: [],
         eventName: '',
-        userId: this.user_id,
+        userId: this.userId,
         windowTimeFormat: '按天'
       },
       windowTimeOpt: [
@@ -245,7 +245,7 @@ export default {
         appid: this.$store.state.baseData.EsConnectID,
         orderBy: this.infoForm.sortRule,
         eventName: this.infoForm.eventName,
-        userId: this.user_id,
+        userId: this.userId,
         date: this.form.date
       }
 

@@ -55,7 +55,7 @@ func main() {
 	app.RunManager()
 
 	app.WaitForExitSign(func() {
-		logs.Logger.Sugar().Infof("数据上报服务停止成功...")
+		logs.Logger.Sugar().Infof("BI 服务停止成功...")
 	})
 
 }

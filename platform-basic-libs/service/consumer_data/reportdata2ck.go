@@ -39,7 +39,10 @@ func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
 
 func (this *ReportData2CK) Flush() (err error) {
 	this.bufferMutex.Lock()
-
+	if len(this.buffer)==0{
+		this.bufferMutex.Unlock()
+		return nil
+	}
 	startNow := time.Now()
 
 	rowsMap := map[string][][]interface{}{}

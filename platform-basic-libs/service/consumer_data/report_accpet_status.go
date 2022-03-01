@@ -49,6 +49,10 @@ func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus
 func (this *ReportAcceptStatus) Flush() (err error) {
 
 	this.bufferMutex.Lock()
+	if len(this.buffer)==0{
+		this.bufferMutex.Unlock()
+		return nil
+	}
 
 	startNow := time.Now()
 
@@ -89,7 +93,6 @@ func (this *ReportAcceptStatus) Flush() (err error) {
 		if len > 0 {
 			logs.Logger.Info("入库数据状态成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
 		}
-
 	}
 
 	this.buffer = make([]ReportAcceptStatusData, 0, this.batchSize)

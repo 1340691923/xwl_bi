@@ -16,3 +16,5 @@
 /bin/linux/
 /bin/win/
 /views/dist/
+main.go
+task

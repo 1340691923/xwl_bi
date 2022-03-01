@@ -93,7 +93,7 @@ func main() {
 
 	go func() {
 		if model.GlobConfig.Sinker.PprofHttpPort != 0 {
-			httpPort := ":" + strconv.Itoa(model.GlobConfig.Sinker.PprofHttpPort)
+			httpPort := ":" + strconv.Itoa(int(model.GlobConfig.Sinker.PprofHttpPort))
 			if err := http.ListenAndServe(httpPort, nil); err != nil {
 				logs.Logger.Info("err", zap.Error(err))
 			}

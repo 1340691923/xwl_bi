@@ -54,6 +54,7 @@ func WriteJSON(ctx *fasthttp.RequestCtx, v interface{}) (error) {
 	if err != nil {
 		return  err
 	}
+	ctx.Response.Header.Add("Content-Type", "application/json")
 	ctx.Response.SetBody(b)
 	return nil
 }

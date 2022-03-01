@@ -125,7 +125,7 @@ func (this *Retention) getSqlByDate(t time.Time) (SQL string, allArgs []interfac
 		if err != nil {
 			return SQL, allArgs, err
 		}
-		userFilterSql = `and xwl_distinct_id in ( select xwl_distinct_id from ` + utils.GetUserTableView(this.req.Appid, colArr) + ` prewhere ` + sql + ")"
+		userFilterSql = `and xwl_distinct_id in ( select xwl_distinct_id from ` + utils.GetUserTableView(this.req.Appid, colArr) + ` where ` + sql + ")"
 	}
 
 	whereFilterSql, whereFilterArgs, _, err := utils.GetWhereSql(this.req.WhereFilter)

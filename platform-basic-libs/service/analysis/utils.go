@@ -15,7 +15,7 @@ func getUserfilterSqlArgs(analysisFilter request.AnalysisFilter, appid int) (use
 		if err != nil {
 			return
 		}
-		userFilterSql = ` and xwl_distinct_id in ( select xwl_distinct_id from ` + utils.GetUserTableView(appid, colArr) + ` prewhere ` + sql + ") "
+		userFilterSql = ` and xwl_distinct_id in ( select xwl_distinct_id from ` + utils.GetUserTableView(appid, colArr) + ` where ` + sql + ") "
 	}
 	return
 }

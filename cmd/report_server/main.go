@@ -86,6 +86,11 @@ func main() {
 	router.GET("/debug/pprof/heap", fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Handler("heap").ServeHTTP))
 	router.GET("/debug/pprof/mutex", fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Handler("mutex").ServeHTTP))
 	router.GET("/debug/pprof/threadcreate", fasthttpadaptor.NewFastHTTPHandlerFunc(pprof.Handler("threadcreate").ServeHTTP))
+	router.POST("/test", func(ctx *fasthttp.RequestCtx) {
+		ctx.WriteString(`{"code":0}`)
+	})
+
+	router.GET("/GetWordParse", controller.GetWordParse)
 
 	//写着写着变成了flutter的嵌套语法哈哈哈
 	router.POST(

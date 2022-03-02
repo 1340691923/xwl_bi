@@ -109,7 +109,7 @@ func main() {
 	reportData2CKSarama := realTimeDataSarama.Clone()
 	go action.MysqlConsumer()
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	pp, err := parser.NewParserPool("fastjson", nil, "", "")
+	pp, err := parser.NewParserPool()
 	if err != nil {
 		panic(err)
 	}
@@ -274,7 +274,6 @@ func main() {
 			Status:         consumer_data.SuccessStatus,
 		}); err != nil {
 			logs.Logger.Error("reportAcceptStatus Add SuccessStatus err", zap.Error(err))
-			return
 		}
 
 		//添加数据到ck用于后台统计

@@ -55,7 +55,6 @@ func MysqlConsumer() {
 	}
 }
 
-
 func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 	if kafkaData.ReportType == model.EventReportType {
 		redisConn := db.RedisPool.Get()
@@ -80,8 +79,6 @@ func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 	}
 	return nil
 }
-
-
 
 func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.ReportAcceptStatusData), tableName string, ReqDataObject *parser.FastjsonMetric) (err error) {
 

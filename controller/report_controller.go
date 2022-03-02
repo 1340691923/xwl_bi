@@ -28,7 +28,7 @@ type ReportController struct {
 var pp *parser.Pool
 
 func init(){
-	pp, _ = parser.NewParserPool("fastjson", nil, "", "")
+	pp, _ = parser.NewParserPool()
 }
 
 //上报接口

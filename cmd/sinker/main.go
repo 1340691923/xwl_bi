@@ -37,6 +37,7 @@ func init() {
 	flag.StringVar(&configFileName, "configFileName", "config", "配置文件名")
 	flag.StringVar(&configFileExt, "configFileExt", "json", "配置文件后缀")
 	flag.Parse()
+
 }
 
 //核心逻辑都在sinker这边
@@ -108,6 +109,10 @@ func main() {
 	reportData2CKSarama := realTimeDataSarama.Clone()
 	go action.MysqlConsumer()
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	pp, err := parser.NewParserPool("fastjson", nil, "", "")
+	if err != nil {
+		panic(err)
+	}
 	err = realTimeDataSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.RealTimeDataGroup, func(msg model.InputMessage, markFn func()) {
 		//ETL
 		var kafkaData model.KafkaData
@@ -234,13 +239,12 @@ func main() {
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_kafka_partition", msg.Partition)
 
 		//解析开发者上报的json数据
-		metric, err := parser.ParseKafkaData(kafkaData.ReqData)
+		metric, err := parser.ParseKafkaData(pp,kafkaData.ReqData)
 		if err != nil {
 			logs.Logger.Error("ParseKafkaData err", zap.Error(err))
 			markFn()
 			return
 		}
-		log.Println(metric.GetParseObject().String())
 		//生成表名
 		tableName := kafkaData.GetTableName()
 

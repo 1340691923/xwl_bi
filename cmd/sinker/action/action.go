@@ -29,9 +29,9 @@ var MetaAttrRelationSet sync.Map
 var AttributeMap sync.Map
 var MetaEventMap sync.Map
 
-var metaAttrRelationChan = make(chan map[string]interface{}, 1000)
-var attributeChan = make(chan map[string]interface{}, 1000)
-var metaEventChan = make(chan map[string]interface{}, 1000)
+var metaAttrRelationChan = make(chan map[string]interface{}, 10000)
+var attributeChan = make(chan map[string]interface{}, 10000)
+var metaEventChan = make(chan map[string]interface{}, 10000)
 
 func MysqlConsumer() {
 	for {
@@ -55,11 +55,6 @@ func MysqlConsumer() {
 	}
 }
 
-func AddRealTimeData(realTimeWarehousingData *consumer_data.RealTimeWarehousingData, realTimeWarehousing *consumer_data.RealTimeWarehousing) (err error) {
-
-	err = realTimeWarehousing.Add(realTimeWarehousingData)
-	return err
-}
 
 func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 	if kafkaData.ReportType == model.EventReportType {
@@ -85,6 +80,8 @@ func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 	}
 	return nil
 }
+
+
 
 func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.ReportAcceptStatusData), tableName string, ReqDataObject *parser.FastjsonMetric) (err error) {
 

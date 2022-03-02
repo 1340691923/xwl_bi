@@ -60,14 +60,9 @@ func NewParserPool(name string, csvFormat []string, delimiter string, timezone s
 	return
 }
 
-func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
-	pp, err := NewParserPool("fastjson", nil, "", "")
-	if err != nil {
-		return
-	}
-
-	jsonParser := pp.Get()
-	defer pp.Put(jsonParser)
+func ParseKafkaData(pool *Pool, data []byte) (metric *FastjsonMetric, err error) {
+	jsonParser := pool.Get()
+	defer pool.Put(jsonParser)
 	metric, err = jsonParser.Parse(data)
 	return
 }

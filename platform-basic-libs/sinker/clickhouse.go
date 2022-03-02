@@ -50,7 +50,6 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB) (d
 
 	redisConn := db.RedisPool.Get()
 	defer redisConn.Close()
-
 	dimsBytes, redisErr := redis.Bytes(redisConn.Do("get", dimsCachekey))
 
 	if redisErr == nil && len(dimsBytes) != 0 {

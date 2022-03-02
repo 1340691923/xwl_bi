@@ -245,6 +245,7 @@ func main() {
 			markFn()
 			return
 		}
+
 		//生成表名
 		tableName := kafkaData.GetTableName()
 
@@ -259,6 +260,7 @@ func main() {
 			markFn()
 			return
 		}
+
 
 		//添加元数据
 		if err := action.AddMetaEvent(kafkaData); err != nil {

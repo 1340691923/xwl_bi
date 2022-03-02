@@ -57,9 +57,6 @@ func MysqlConsumer() {
 
 func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 	if kafkaData.ReportType == model.EventReportType {
-		redisConn := db.RedisPool.Get()
-		defer redisConn.Close()
-
 		b := bytes.Buffer{}
 		b.WriteString(kafkaData.TableId)
 		b.WriteString("_")
@@ -127,7 +124,6 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 			}
 		}
 	}
-
 
 	b := bytes.Buffer{}
 
@@ -207,7 +203,6 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 		}()
 
 	})
-
 	if foundNewKey {
 		dims, err = sinker.ChangeSchema(newKeys, model.GlobConfig.Comm.ClickHouse.DbName, tableName, dims)
 		if err != nil {

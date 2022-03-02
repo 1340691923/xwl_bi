@@ -93,28 +93,6 @@ func InitClickHouse() (fn func(), err error) {
 	return
 }
 
-// 初始化mysql连接
-func InitEsClient() (fn func(), err error) {
-	config := model.GlobConfig.Comm.ElasticSearch
-
-	db.EsClient, err = db.NewEsClient(
-		config.Addresses,
-		config.Username,
-		config.Password,
-	)
-
-	if err != nil {
-		return
-	}
-	log.Println(fmt.Sprintf("ES组件初始化成功！连接：%v，用户名：%v，密码:%v",
-		config.Addresses,
-		config.Username,
-		config.Password,
-	))
-	fn = func() {}
-	return
-}
-
 // 初始化redis
 func InitRedisPool() (fn func(), err error) {
 	config := model.GlobConfig.Comm.Redis

@@ -65,11 +65,6 @@
       "reportData2CKGroup": "reportData2CKGroup2",
       "realTimeDataGroup": "realTimeDataGroup2"
     },
-    "elasticSearch": {
-      "Addresses":["http://192.168.1.236:9200"],
-      "Username":"",
-      "Password":""
-    },
     "redis": {
       "addr":"192.168.1.236:6379",
       "passwd":"",

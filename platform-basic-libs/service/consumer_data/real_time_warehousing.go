@@ -1,18 +1,23 @@
 package consumer_data
 
 import (
-	"context"
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/olivere/elastic"
+	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"go.uber.org/zap"
 	"sync"
 	"time"
 )
 
+type RealTimeWarehousingData struct {
+	Appid           int64
+	EventName       string
+	CreateTime     string
+	Data       []byte
+}
+
 type RealTimeWarehousing struct {
-	buffer        []*elastic.BulkIndexRequest
+	buffer        []*RealTimeWarehousingData
 	bufferMutex   *sync.RWMutex
 	batchSize     int
 	flushInterval int
@@ -20,7 +25,7 @@ type RealTimeWarehousing struct {
 
 func NewRealTimeWarehousing(batchSize, flushInterval int) *RealTimeWarehousing {
 	realTimeWarehousing := &RealTimeWarehousing{
-		buffer:        make([]*elastic.BulkIndexRequest, 0, batchSize),
+		buffer:        make([]*RealTimeWarehousingData, 0, batchSize),
 		bufferMutex:   new(sync.RWMutex),
 		batchSize:     batchSize,
 		flushInterval: flushInterval,
@@ -37,39 +42,47 @@ func (this *RealTimeWarehousing) Flush() (err error) {
 	this.bufferMutex.Lock()
 	if len(this.buffer) > 0 {
 		startNow := time.Now()
-		var json = jsoniter.ConfigCompatibleWithStandardLibrary
-		bulkRequest := db.EsClient.Bulk()
+
+		tx, err := db.ClickHouseSqlx.Begin()
+		if err != nil {
+			return err
+		}
+
+		stmt, err := tx.Prepare("INSERT INTO xwl_real_time_warehousing (table_id,event_name,create_time, report_data) VALUES (?,?,?)")
+		if err != nil {
+			return err
+		}
 
 		for _, buffer := range this.buffer {
-			bulkRequest.Add(buffer)
-		}
-		res, err := bulkRequest.Do(context.Background())
-
-		if err != nil {
-			logs.Logger.Error("ES出现错误，休息10秒钟继续", zap.Error(err))
-			time.Sleep(time.Second * 10)
-			this.Flush()
-		} else {
-			if res.Errors {
-				resStr, _ := json.MarshalToString(res)
-				logs.Logger.Error("ES出现错误", zap.String("res", resStr))
-			} else {
-				lostTime := time.Now().Sub(startNow).String()
-				len := len(this.buffer)
-				if len > 0 {
-					logs.Logger.Info("ES入库成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
-				}
-
+			if _, err := stmt.Exec(
+				buffer.Appid,
+				buffer.EventName,
+				buffer.CreateTime,
+				util.Bytes2str(buffer.Data),
+			); err != nil {
+				stmt.Close()
+				return err
 			}
 		}
 
-		this.buffer = make([]*elastic.BulkIndexRequest, 0, this.batchSize)
+		if err := tx.Commit(); err != nil {
+			logs.Logger.Error("入库数据状态出现错误", zap.Error(err))
+		} else {
+			lostTime := time.Now().Sub(startNow).String()
+			len := len(this.buffer)
+			if len > 0 {
+				logs.Logger.Info("入库数据状态成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
+			}
+		}
+		stmt.Close()
+
+		this.buffer = make([]*RealTimeWarehousingData, 0, this.batchSize)
 	}
 	this.bufferMutex.Unlock()
 	return nil
 }
 
-func (this *RealTimeWarehousing) Add(data *elastic.BulkIndexRequest) (err error) {
+func (this *RealTimeWarehousing) Add(data *RealTimeWarehousingData) (err error) {
 	this.bufferMutex.Lock()
 	this.buffer = append(this.buffer, data)
 	this.bufferMutex.Unlock()

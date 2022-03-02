@@ -37,7 +37,6 @@ func main() {
 		application.RegisterInitFnObserver(application.InitRbac),
 		application.RegisterInitFnObserver(application.InitOpenWinBrowser),
 		application.RegisterInitFnObserver(application.InitClickHouse),
-		application.RegisterInitFnObserver(application.InitEsClient),
 		application.RegisterInitFnObserver(application.InitRedisPool),
 		application.RegisterInitFnObserver(application.InitDebugSarama),
 	)

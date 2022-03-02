@@ -59,8 +59,6 @@ func (this *UserReport) InflowOfKakfa() (err error) {
 	msg.Timestamp = time.Now()
 
 	return sendMsg(msg)
-
-	return
 }
 
 func (this *UserReport) Put() {

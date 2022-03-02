@@ -61,11 +61,44 @@ func Init() {
 		 error_handling,
 		 report_type,
 		 status)
-		TTL part_date + toIntervalMonth(1)
+		TTL part_date + toIntervalMonth(3)
 		SETTINGS index_granularity = 8192;
 `)
 	if err != nil {
 		log.Println(fmt.Sprintf("clickhouse 建表 xwl_acceptance_status 失败:%s", err.Error()))
+		panic(err)
+	}
+
+	_, err = db.ClickHouseSqlx.Exec(`DROP TABLE IF EXISTS xwl_real_time_warehousing` + sinker.GetClusterSql() + `;`)
+
+	if err != nil {
+		log.Println(fmt.Sprintf("clickhouse 删除表 xwl_real_time_warehousing 失败:%s", err.Error()))
+		panic(err)
+	}
+
+	_, err = db.ClickHouseSqlx.Exec(`
+		
+		CREATE TABLE xwl_real_time_warehousing ` + sinker.GetClusterSql() + `
+		(
+		
+			table_id Int64,
+		
+			create_time DateTime DEFAULT now(),
+		
+			event_name String,
+		
+			report_data String
+		)
+		ENGINE = ` + sinker.GetMergeTree("xwl_real_time_warehousing") + ` 
+		PARTITION BY (toYYYYMMDD(create_time))
+		ORDER BY (toYYYYMMDD(create_time),
+		 table_id,
+		 event_name)
+		TTL create_time + toIntervalMonth(3)
+		SETTINGS index_granularity = 8192;
+`)
+	if err != nil {
+		log.Println(fmt.Sprintf("clickhouse 建表 xwl_real_time_warehousing 失败:%s", err.Error()))
 		panic(err)
 	}
 

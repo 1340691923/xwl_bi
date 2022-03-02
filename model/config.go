@@ -22,7 +22,6 @@ type Config struct {
 		Mysql MysqlConfig `json:"mysql"`
 		ClickHouse ClickHouseConfig `json:"clickhouse"`
 		Kafka     KafkaCfg `json:"kafka"`
-		ElasticSearch  EsConfig `json:"elasticSearch"`
 		Redis RedisConfig `json:"redis"`
 	} `json:"comm"`
 }
@@ -48,12 +47,6 @@ type RedisConfig struct {
 	Db        int    `json:"db"`
 	MaxIdle   int    `json:"maxIdle"`
 	MaxActive int    `json:"maxActive"`
-}
-
-type EsConfig struct {
-	Addresses []string `json:"addresses"`
-	Username  string   `json:"username"`
-	Password  string   `json:"password"`
 }
 
 type ClickHouseConfig struct {

@@ -2,14 +2,18 @@ package controller
 
 import (
 	"errors"
+	"github.com/1340691923/xwl_bi/engine/db"
+	"github.com/1340691923/xwl_bi/engine/logs"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/jwt"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/request"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/response"
-	"github.com/1340691923/xwl_bi/platform-basic-libs/service/consumer_data"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/service/debug_data"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/service/realdata"
+	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type RealDataController struct {
@@ -21,7 +25,7 @@ func (this RealDataController) List(ctx *fiber.Ctx) error {
 
 	type ReqData struct {
 		Appid    int    `json:"appid"`
-		SearchKw string `json:"search_kw"`
+		SearchKw string `json:"searchKw"`
 		Date     string `json:"date"`
 	}
 
@@ -32,18 +36,42 @@ func (this RealDataController) List(ctx *fiber.Ctx) error {
 	}
 
 	appid := strconv.Itoa(reqData.Appid)
-	searchKw := reqData.SearchKw
-	date := reqData.Date
 
-	clientReportData := consumer_data.ClientReportData{
-		TableId: appid,
+	type Res struct {
+		CreateTime string `json:"create_time" db:"-"`
+		CreateTimeDb time.Time `json:"-" db:"create_time"`
+		EventName string `json:"event_name" db:"event_name"`
+		ReportData string `json:"report_data" db:"report_data"`
 	}
-	res, err := clientReportData.GetList(ctx.Context(), searchKw, date)
-	if err != nil {
+
+	filterSql := ""
+
+	date := strings.Split(reqData.Date,",")
+
+	args := []interface{}{appid}
+
+	if len(date) == 2{
+		filterSql = filterSql+  ` and create_time >= toDateTime(?) and create_time <=toDateTime(?) `
+		args = append(args, date[0],date[1])
+	}
+	logs.Logger.Sugar().Infof("reqData.SearchKw",reqData.SearchKw)
+	if strings.TrimSpace(reqData.SearchKw)!="" {
+		filterSql =  filterSql+ ` and event_name like '%`+reqData.SearchKw+`%' `
+	}
+	sql := `select report_data,event_name,create_time as create_time from xwl_real_time_warehousing where   table_id = ?    `+filterSql+` order by create_time desc limit 0,1000;`
+	logs.Logger.Sugar().Infof("sql",sql,args)
+	var res []Res
+	err := db.ClickHouseSqlx.Select(&res,sql,
+		args...,
+	)
+	if  err != nil {
 		return this.Error(ctx, err)
 	}
+	for index:= range res{
+		res[index].CreateTime = res[index].CreateTimeDb.Format(util.TimeFormat)
+	}
 
-	return this.Success(ctx, response.SearchSuccess, map[string]interface{}{"list": res.Hits.Hits})
+	return this.Success(ctx, response.SearchSuccess, map[string]interface{}{"list": res})
 }
 
 //错误数据列表

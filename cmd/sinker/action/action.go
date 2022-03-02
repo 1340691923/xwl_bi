@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
-
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
 	"github.com/1340691923/xwl_bi/model"
@@ -14,6 +12,7 @@ import (
 	parser "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/parse"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"github.com/valyala/fastjson"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"sync"
@@ -56,19 +55,9 @@ func MysqlConsumer() {
 	}
 }
 
-func AddRealTimeData(kafkaData model.KafkaData, data string, realTimeWarehousing *consumer_data.RealTimeWarehousing) (err error) {
+func AddRealTimeData(realTimeWarehousingData *consumer_data.RealTimeWarehousingData, realTimeWarehousing *consumer_data.RealTimeWarehousing) (err error) {
 
-	clientReportData := consumer_data.ClientReportData{
-		Data:    data,
-		TableId: kafkaData.TableId,
-		Date:    util.Str2Time(kafkaData.ReportTime, util.TimeFormat).Format(util.TimeFormatDay4),
-	}
-	err = clientReportData.CreateIndex()
-	if err != nil {
-		logs.Logger.Error(" clientReportData.CreateIndex", zap.Error(err))
-	}
-	bulkIndexRequest := clientReportData.GetReportData()
-	err = realTimeWarehousing.Add(bulkIndexRequest)
+	err = realTimeWarehousing.Add(realTimeWarehousingData)
 	return err
 }
 

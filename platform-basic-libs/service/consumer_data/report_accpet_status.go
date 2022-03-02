@@ -4,7 +4,6 @@ import (
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
 	"go.uber.org/zap"
-	"log"
 	"sync"
 	"time"
 )
@@ -22,7 +21,7 @@ type ReportAcceptStatusData struct {
 }
 
 type ReportAcceptStatus struct {
-	buffer        []ReportAcceptStatusData
+	buffer        []*ReportAcceptStatusData
 	bufferMutex   *sync.RWMutex
 	batchSize     int
 	flushInterval int
@@ -33,7 +32,7 @@ const SuccessStatus = 1
 
 func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus {
 	reportAcceptStatus := &ReportAcceptStatus{
-		buffer:        make([]ReportAcceptStatusData, 0, batchSize),
+		buffer:        make([]*ReportAcceptStatusData, 0, batchSize),
 		bufferMutex:   new(sync.RWMutex),
 		batchSize:     batchSize,
 		flushInterval: flushInterval,
@@ -58,15 +57,13 @@ func (this *ReportAcceptStatus) Flush() (err error) {
 
 	tx, err := db.ClickHouseSqlx.Begin()
 	if err != nil {
-		return
+		return err
 	}
 
 	stmt, err := tx.Prepare("INSERT INTO xwl_acceptance_status (status,part_date, table_id,report_type, data_name, error_reason, error_handling, report_data, xwl_kafka_offset) VALUES (?,?,?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
-		return
+		return err
 	}
-
-	defer stmt.Close()
 
 	for _, buffer := range this.buffer {
 		if _, err := stmt.Exec(
@@ -80,27 +77,27 @@ func (this *ReportAcceptStatus) Flush() (err error) {
 			buffer.ReportData,
 			buffer.XwlKafkaOffset,
 		); err != nil {
-			log.Fatal(err)
+			stmt.Close()
+			return err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
 		logs.Logger.Error("入库数据状态出现错误", zap.Error(err))
 	} else {
-
 		lostTime := time.Now().Sub(startNow).String()
 		len := len(this.buffer)
 		if len > 0 {
 			logs.Logger.Info("入库数据状态成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
 		}
 	}
-
-	this.buffer = make([]ReportAcceptStatusData, 0, this.batchSize)
+	stmt.Close()
+	this.buffer = make([]*ReportAcceptStatusData, 0, this.batchSize)
 	this.bufferMutex.Unlock()
 	return nil
 }
 
-func (this *ReportAcceptStatus) Add(data ReportAcceptStatusData) (err error) {
+func (this *ReportAcceptStatus) Add(data *ReportAcceptStatusData) (err error) {
 	this.bufferMutex.Lock()
 	this.buffer = append(this.buffer, data)
 	this.bufferMutex.Unlock()

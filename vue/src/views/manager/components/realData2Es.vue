@@ -238,22 +238,19 @@ export default {
         let list = []
         let index = 0
         for (const v of res.data.list) {
-          const _source = v['_source']
-          _source['dataFormat'] = JSON.stringify(JSON.parse(v['_source']['data']), null, '\t')
+          const _source = {}
 
-          if (v.hasOwnProperty('highlight')) {
-            _source['data'] = v['highlight']['data'][0]
-          } else {
-            _source['data'] = v['_source']['data']
-          }
+          _source['dataFormat'] = JSON.stringify(JSON.parse(v["report_data"]), null, '\t')
+          _source['event_name'] = v["event_name"]
+          _source['create_time'] = v["create_time"]
+          _source['data'] = v["report_data"]
           _source['isFormatData'] = false
           _source['index'] = index
-
           list.push(_source)
           index++
         }
         list = filterData(list, this.input.trim())
-
+        console.log("list",list)
         this.total = list.length
         this.list = list
         this.trueList = list

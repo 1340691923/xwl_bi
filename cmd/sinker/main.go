@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"github.com/1340691923/xwl_bi/application"
@@ -69,7 +68,6 @@ func main() {
 		application.RegisterInitFnObserver(application.InitLogs),
 		application.RegisterInitFnObserver(application.InitMysql),
 		application.RegisterInitFnObserver(application.InitClickHouse),
-		application.RegisterInitFnObserver(application.InitEsClient),
 		application.RegisterInitFnObserver(application.InitRedisPool),
 	)
 
@@ -109,11 +107,9 @@ func main() {
 	realTimeDataSarama := sinker.NewKafkaSarama()
 	reportData2CKSarama := realTimeDataSarama.Clone()
 	go action.MysqlConsumer()
-
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	err = realTimeDataSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.RealTimeDataGroup, func(msg model.InputMessage, markFn func()) {
-
 		//ETL
-		var json = jsoniter.ConfigCompatibleWithStandardLibrary
 		var kafkaData model.KafkaData
 		err = json.Unmarshal(msg.Value, &kafkaData)
 		if err != nil {
@@ -121,34 +117,20 @@ func main() {
 			markFn()
 			return
 		}
-		reportDataTmp := kafkaData.ReqData
-		reqData, err := json.Marshal(util.Bytes2str(reportDataTmp))
+		appid,err := strconv.Atoi(kafkaData.TableId)
 		if err != nil {
-			logs.Logger.Error("json.Marshal Err", zap.Error(err))
+			logs.Logger.Error("strconv.Atoi(kafkaData.TableId) Err", zap.Error(err))
 			markFn()
 			return
 		}
-		xwlDistinctId := gjson.GetBytes(kafkaData.ReqData, "xwl_distinct_id")
-
-		if xwlDistinctId.String() == "" {
-			logs.Logger.Sugar().Errorf("xwl_distinct_id 为空", util.Bytes2str(kafkaData.ReqData))
-			markFn()
-			return
-		}
-		kafkaData.Offset = msg.Offset
-
-		buff := bytes.Buffer{}
-		buff.WriteString(`{"event_name":"`)
-		buff.WriteString(kafkaData.EventName)
-		buff.WriteString(`","create_time":"`)
-		buff.WriteString(kafkaData.ReportTime)
-		buff.WriteString(`","data":`)
-		buff.WriteString(util.Bytes2str(reqData))
-		buff.WriteString(`}`)
-		addRealTimeData := buff.String()
-
 		//添加实时数据
-		err = action.AddRealTimeData(kafkaData, addRealTimeData, realTimeWarehousing)
+		err = realTimeWarehousing.Add(&consumer_data.RealTimeWarehousingData{
+			Appid:      int64(appid),
+			EventName:  kafkaData.EventName,
+			CreateTime: kafkaData.ReportTime,
+			Data:       kafkaData.ReqData,
+		})
+
 		if err != nil {
 			logs.Logger.Error("AddRealTimeData err", zap.Error(err))
 		}
@@ -162,7 +144,6 @@ func main() {
 
 	err = reportData2CKSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.ReportData2CKGroup, func(msg model.InputMessage, markFn func()) {
 
-		var json = jsoniter.ConfigCompatibleWithStandardLibrary
 		var kafkaData model.KafkaData
 		err = json.Unmarshal(msg.Value, &kafkaData)
 		if err != nil {
@@ -198,7 +179,7 @@ func main() {
 			case model.EventReportType:
 				eventType = "事件属性类型不合法"
 			}
-			reportAcceptStatus.Add(consumer_data.ReportAcceptStatusData{
+			reportAcceptStatus.Add(&consumer_data.ReportAcceptStatusData{
 				PartDate:       kafkaData.ReportTime,
 				TableId:        tableId,
 				ReportType:     eventType,
@@ -230,7 +211,7 @@ func main() {
 		serverT := util.Str2Time(kafkaData.ReportTime, util.TimeFormat)
 
 		if math.Abs(serverT.Sub(clinetT).Minutes()) > 10 {
-			reportAcceptStatus.Add(consumer_data.ReportAcceptStatusData{
+			reportAcceptStatus.Add(&consumer_data.ReportAcceptStatusData{
 				PartDate:       kafkaData.ReportTime,
 				TableId:        tableId,
 				ReportType:     kafkaData.GetReportTypeErr(),
@@ -266,7 +247,7 @@ func main() {
 		//新增表结构
 		if err := action.AddTableColumn(
 			kafkaData,
-			func(data consumer_data.ReportAcceptStatusData) { reportAcceptStatus.Add(data) },
+			func(data consumer_data.ReportAcceptStatusData) { reportAcceptStatus.Add(&data) },
 			tableName,
 			metric,
 		); err != nil {
@@ -281,7 +262,7 @@ func main() {
 		}
 
 		//入库成功
-		if err := reportAcceptStatus.Add(consumer_data.ReportAcceptStatusData{
+		if err := reportAcceptStatus.Add(&consumer_data.ReportAcceptStatusData{
 			PartDate:       kafkaData.ReportTime,
 			TableId:        tableId,
 			DataName:       kafkaData.EventName,

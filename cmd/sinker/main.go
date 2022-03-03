@@ -24,6 +24,7 @@ import (
 	_ "net/http/pprof"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 var (
@@ -108,6 +109,7 @@ func main() {
 	realTimeDataSarama := sinker.NewKafkaSarama()
 	reportData2CKSarama := realTimeDataSarama.Clone()
 	go action.MysqlConsumer()
+	go sinker.ClearDimsCacheByTime(time.Minute * 2)
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	pp, err := parser.NewParserPool()
 	if err != nil {

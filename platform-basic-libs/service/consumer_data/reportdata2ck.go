@@ -7,7 +7,6 @@ import (
 	model2 "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/model"
 	parser "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/parse"
 	"go.uber.org/zap"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +19,7 @@ type ReportData2CK struct {
 	bufferMutex   *sync.RWMutex
 	batchSize     int
 	flushInterval int
+	pool sync.Pool
 }
 
 func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
@@ -37,6 +37,19 @@ func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
 	return reportData2CK
 }
 
+func(this *ReportData2CK)GetBuffer()*bytes.Buffer{
+	v := this.pool.Get()
+	if v == nil {
+		return new(bytes.Buffer)
+	}
+	return v.(*bytes.Buffer)
+}
+
+func(this *ReportData2CK)PutBuffer(buff *bytes.Buffer){
+	buff.Reset()
+	this.pool.Put(buff)
+}
+
 func (this *ReportData2CK) Flush() (err error) {
 	this.bufferMutex.Lock()
 	if len(this.buffer)==0{
@@ -46,8 +59,8 @@ func (this *ReportData2CK) Flush() (err error) {
 	startNow := time.Now()
 
 	rowsMap := map[string][][]interface{}{}
-	for _, data := range this.buffer {
-		for tableName, metric := range data {
+	for bufferIndex := range this.buffer {
+		for tableName := range this.buffer[bufferIndex] {
 			rows := [][]interface{}{}
 			if _, haveKey := rowsMap[tableName]; haveKey {
 				rows = rowsMap[tableName]
@@ -58,7 +71,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			dims := v.([]*model2.ColumnWithType)
 			var rowArr []interface{}
 			for _, dim := range dims {
-				val := parser.GetValueByType(metric, dim)
+				val := parser.GetValueByType(this.buffer[bufferIndex][tableName], dim)
 				rowArr = append(rowArr, val)
 			}
 			rows = append(rows, rowArr)
@@ -66,7 +79,8 @@ func (this *ReportData2CK) Flush() (err error) {
 		}
 	}
 
-	buffer := bytes.Buffer{}
+	bytesbuffer:=this.GetBuffer()
+	defer this.PutBuffer(bytesbuffer)
 
 	TableColumnMap.Range(func(key, value interface{}) bool {
 
@@ -77,22 +91,27 @@ func (this *ReportData2CK) Flush() (err error) {
 			seriesDims := value.([]*model2.ColumnWithType)
 			serDimsQuoted := make([]string, len(seriesDims))
 			params := make([]string, len(seriesDims))
+
 			for i, serDim := range seriesDims {
-				serDimsQuoted[i] = "`" + serDim.Name + "`"
+				bytesbuffer.WriteString("`")
+				bytesbuffer.WriteString(serDim.Name)
+				bytesbuffer.WriteString("`")
+				serDimsQuoted[i] = bytesbuffer.String()
+				bytesbuffer.Reset()
 				params[i] = "?"
 			}
 
-			buffer.WriteString("INSERT INTO ")
-			buffer.WriteString(tableName)
-			buffer.WriteString(" (")
-			buffer.WriteString(strings.Join(serDimsQuoted, ","))
-			buffer.WriteString(") ")
-			buffer.WriteString("VALUES (")
-			buffer.WriteString(strings.Join(params, ","))
-			buffer.WriteString(")")
+			bytesbuffer.WriteString("INSERT INTO ")
+			bytesbuffer.WriteString(tableName)
+			bytesbuffer.WriteString(" (")
+			bytesbuffer.WriteString(strings.Join(serDimsQuoted, ","))
+			bytesbuffer.WriteString(") ")
+			bytesbuffer.WriteString("VALUES (")
+			bytesbuffer.WriteString(strings.Join(params, ","))
+			bytesbuffer.WriteString(")")
 
-			insertSql := buffer.String()
-			buffer.Reset()
+			insertSql := bytesbuffer.String()
+			bytesbuffer.Reset()
 			tx, err := db.ClickHouseSqlx.Begin()
 			if err != nil {
 				logs.Logger.Error("CK入库失败", zap.Error(err))
@@ -106,7 +125,6 @@ func (this *ReportData2CK) Flush() (err error) {
 			defer stmt.Close()
 			haveFail := false
 			for _, row := range rowsMap[tableName] {
-				log.Println("row",row)
 				if _, err := stmt.Exec(row...); err != nil {
 					logs.Logger.Error("CK入库失败", zap.Error(err))
 					haveFail = true

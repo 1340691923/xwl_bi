@@ -19,7 +19,7 @@ func ClearCacheByAppid(key string) (err error) {
 	defer conn.Close()
 	_, err = conn.Do("unlink", key)
 	if err != nil {
-		_, err = conn.Do("del", key)
+		conn.Do("del", key)
 	}
 	return
 }

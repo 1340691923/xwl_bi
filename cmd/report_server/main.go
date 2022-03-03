@@ -12,6 +12,7 @@ import (
 	"github.com/1340691923/xwl_bi/engine/logs"
 	"github.com/1340691923/xwl_bi/middleware"
 	"github.com/1340691923/xwl_bi/model"
+	"github.com/1340691923/xwl_bi/platform-basic-libs/sinker"
 	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/buaazp/fasthttprouter"
 	_ "github.com/go-sql-driver/mysql"
@@ -72,6 +73,7 @@ func main() {
 			}
 		}
 	}()
+	go sinker.ClearDimsCacheByTime(time.Minute * 2)
 
 	router := fasthttprouter.New()
 

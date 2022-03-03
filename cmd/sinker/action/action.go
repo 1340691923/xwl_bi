@@ -212,10 +212,13 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 			redisConn := db.RedisPool.Get()
 			defer redisConn.Close()
 			dimsCachekey := sinker.GetDimsCachekey(model.GlobConfig.Comm.ClickHouse.DbName, tableName)
-			_, err = redisConn.Do("del", dimsCachekey)
+			_, err = redisConn.Do("unlink", dimsCachekey)
 			if err != nil {
+				redisConn.Do("del", dimsCachekey)
 				logs.Logger.Error("err", zap.Error(err))
 			}
+			sinker.ClearDimsCacheByKey(dimsCachekey)
+
 		}()
 	}
 

@@ -3,8 +3,10 @@ package analysis
 import (
 	"fmt"
 	"github.com/1340691923/xwl_bi/engine/db"
+	"github.com/1340691923/xwl_bi/engine/logs"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"github.com/garyburd/redigo/redis"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -19,7 +21,10 @@ func ClearCacheByAppid(key string) (err error) {
 	defer conn.Close()
 	_, err = conn.Do("unlink", key)
 	if err != nil {
-		conn.Do("del", key)
+		_,err = conn.Do("del", key)
+		if err != nil {
+			logs.Logger.Error("err", zap.Error(err))
+		}
 	}
 	return
 }

@@ -19,7 +19,6 @@ type ReportData2CK struct {
 	bufferMutex   *sync.RWMutex
 	batchSize     int
 	flushInterval int
-	pool sync.Pool
 }
 
 func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
@@ -37,18 +36,6 @@ func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
 	return reportData2CK
 }
 
-func(this *ReportData2CK)GetBuffer()*bytes.Buffer{
-	v := this.pool.Get()
-	if v == nil {
-		return new(bytes.Buffer)
-	}
-	return v.(*bytes.Buffer)
-}
-
-func(this *ReportData2CK)PutBuffer(buff *bytes.Buffer){
-	buff.Reset()
-	this.pool.Put(buff)
-}
 
 func (this *ReportData2CK) Flush() (err error) {
 	this.bufferMutex.Lock()
@@ -79,8 +66,7 @@ func (this *ReportData2CK) Flush() (err error) {
 		}
 	}
 
-	bytesbuffer:=this.GetBuffer()
-	defer this.PutBuffer(bytesbuffer)
+	bytesbuffer:=bytes.Buffer{}
 
 	TableColumnMap.Range(func(key, value interface{}) bool {
 
@@ -93,11 +79,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			params := make([]string, len(seriesDims))
 
 			for i, serDim := range seriesDims {
-				bytesbuffer.WriteString("`")
-				bytesbuffer.WriteString(serDim.Name)
-				bytesbuffer.WriteString("`")
-				serDimsQuoted[i] = bytesbuffer.String()
-				bytesbuffer.Reset()
+				serDimsQuoted[i] ="`"+serDim.Name+"`"
 				params[i] = "?"
 			}
 
@@ -125,6 +107,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			defer stmt.Close()
 			haveFail := false
 			for _, row := range rowsMap[tableName] {
+				logs.Logger.Sugar().Infof("insertSQL", insertSql,row)
 				if _, err := stmt.Exec(row...); err != nil {
 					logs.Logger.Error("CK入库失败", zap.Error(err))
 					haveFail = true

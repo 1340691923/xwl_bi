@@ -29,25 +29,46 @@ var MetaAttrRelationSet sync.Map
 var AttributeMap sync.Map
 var MetaEventMap sync.Map
 
-var metaAttrRelationChan = make(chan map[string]interface{}, 10000)
-var attributeChan = make(chan map[string]interface{}, 10000)
-var metaEventChan = make(chan map[string]interface{}, 10000)
+var metaAttrRelationChan = make(chan metaAttrRelationModel, 10000)
+var attributeChan = make(chan attributeModel, 10000)
+var metaEventChan = make(chan metaEventModel, 10000)
+
+type metaAttrRelationModel struct {
+	EventName string
+	EventAttr string
+	AppId string
+}
+
+type attributeModel struct {
+	AttributeName string
+	DataType int
+	AttributeType int
+	attribute_source int
+	App_id string
+}
+
+type metaEventModel struct {
+	EventName string
+	AppId string
+}
 
 func MysqlConsumer() {
 	for {
 		select {
 		case m := <-metaAttrRelationChan:
-			if _, err := db.SqlBuilder.Insert("meta_attr_relation").SetMap(m).RunWith(db.Sqlx).Exec(); err != nil && !strings.Contains(err.Error(), "1062") {
-				logs.Logger.Error("meta_attr_relation insert", zap.Error(err))
+			if _, err := db.Sqlx.Exec(`insert into  meta_attr_relation(app_id,event_name,event_attr) values (?,?,?);`,
+				m.AppId,m.EventName,m.EventAttr); err != nil && !strings.Contains(err.Error(), "1062") {
+				logs.Logger.Sugar().Errorf("meta_attr_relation insert",m, err)
 			}
 		case m := <-attributeChan:
-			if _, err := db.SqlBuilder.Insert("attribute").SetMap(m).RunWith(db.Sqlx).Exec(); err != nil && !strings.Contains(err.Error(), "1062") {
-				logs.Logger.Error("attribute insert", zap.Error(err))
+			if _, err := db.Sqlx.Exec(`insert into  attribute(app_id,attribute_source,attribute_type,data_type,attribute_name) values (?,?,?,?,?);`,
+				m.App_id,m.attribute_source,m.AttributeType,m.DataType,m.AttributeName); err != nil && !strings.Contains(err.Error(), "1062") {
+				logs.Logger.Sugar().Errorf("attribute insert",m, err)
 			}
 		case m := <-metaEventChan:
-			_, err := db.SqlBuilder.Insert("meta_event").SetMap(m).RunWith(db.Sqlx).Exec()
+			_, err := db.Sqlx.Exec(`insert into  meta_event(appid,event_name) values (?,?);`,m.AppId,m.EventName)
 			if err != nil && !strings.Contains(err.Error(), "1062") {
-				logs.Logger.Error("metaEvent insert", zap.Error(err))
+				logs.Logger.Sugar().Errorf("metaEvent insert",m, err)
 			}
 		default:
 
@@ -66,11 +87,10 @@ func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 		_, found := MetaEventMap.Load(bStr)
 
 		if !found {
-			m := map[string]interface{}{
-				"appid":      kafkaData.TableId,
-				"event_name": kafkaData.EventName,
+			metaEventChan <- metaEventModel{
+				EventName: kafkaData.EventName,
+				AppId:     kafkaData.TableId,
 			}
-			metaEventChan <- m
 			MetaEventMap.Store(bStr, struct{}{})
 		}
 	}
@@ -84,7 +104,6 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 		logs.Logger.Error("sinker.GetDims", zap.Error(err))
 		return
 	}
-
 
 	obj, err := ReqDataObject.GetParseObject().Object()
 	if err != nil {
@@ -129,7 +148,7 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 
 	obj.Visit(func(key []byte, v *fastjson.Value) {
 
-		columnName := util.Bytes2str(key)
+		columnName := string(key)
 
 		func() {
 
@@ -142,17 +161,14 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 			bStr := b.String()
 
 			_, found := MetaAttrRelationSet.Load(bStr)
-
 			if !found {
-				m := map[string]interface{}{
-					"event_name": kafkaData.EventName,
-					"event_attr": columnName,
-					"app_id":     kafkaData.TableId,
+				metaAttrRelationChan <- metaAttrRelationModel{
+					EventName: kafkaData.EventName,
+					EventAttr:  columnName,
+					AppId:    kafkaData.TableId,
 				}
-				metaAttrRelationChan <- m
 				MetaAttrRelationSet.Store(bStr, struct{}{})
 			}
-
 		}()
 
 		if !util.InstrArr(knownKeys, columnName) {
@@ -188,14 +204,14 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 				case model.EventReportType:
 					attributeSource = IsEventAttribute
 				}
-				m := map[string]interface{}{
-					"attribute_name":   columnName,
-					"data_type":        parser.FjDetectType(obj.Get(columnName)),
-					"attribute_type":   attributeType,
-					"attribute_source": attributeSource,
-					"app_id":           kafkaData.TableId,
+
+				attributeChan <- attributeModel{
+					AttributeName:columnName,
+					DataType: parser.FjDetectType(obj.Get(columnName)),
+					AttributeType:   attributeType,
+					attribute_source: attributeSource,
+					App_id:           kafkaData.TableId,
 				}
-				attributeChan <- m
 
 				AttributeMap.Store(AttributeMapkey, struct{}{})
 			}
@@ -214,8 +230,10 @@ func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.
 			dimsCachekey := sinker.GetDimsCachekey(model.GlobConfig.Comm.ClickHouse.DbName, tableName)
 			_, err = redisConn.Do("unlink", dimsCachekey)
 			if err != nil {
-				redisConn.Do("del", dimsCachekey)
-				logs.Logger.Error("err", zap.Error(err))
+				_,err = redisConn.Do("del", dimsCachekey)
+				if err != nil {
+					logs.Logger.Error("err", zap.Error(err))
+				}
 			}
 			sinker.ClearDimsCacheByKey(dimsCachekey)
 

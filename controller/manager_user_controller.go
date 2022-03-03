@@ -82,6 +82,9 @@ func (this ManagerUserController) ModifyPwd(ctx *Ctx) error {
 	if err != nil {
 		return this.Error(ctx, err)
 	}
+
+	util.TokenBucket.LoadOrStore(token, claims.ExpiresAt)
+
 	return this.Success(ctx, response.OperateSuccess, nil)
 }
 

@@ -60,8 +60,10 @@ func ClearDimsCacheByRedis(key string){
 
 	_, err := redisConn.Do("unlink", key)
 	if err != nil {
-		redisConn.Do("del", key)
-		logs.Logger.Error("err", zap.Error(err))
+		_,err = redisConn.Do("del", key)
+		if err!=nil{
+			logs.Logger.Error("err", zap.Error(err))
+		}
 	}
 }
 

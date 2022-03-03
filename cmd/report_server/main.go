@@ -73,7 +73,7 @@ func main() {
 			}
 		}
 	}()
-	go sinker.ClearDimsCacheByTime(time.Minute * 30)
+	go sinker.ClearDimsCacheByTimeBylocal(time.Second * 20)
 
 	router := fasthttprouter.New()
 

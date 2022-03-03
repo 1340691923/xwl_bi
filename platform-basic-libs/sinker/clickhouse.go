@@ -54,6 +54,19 @@ func ClearDimsCacheByTime(clearTime time.Duration){
 	}
 }
 
+func ClearDimsCacheByTimeBylocal(clearTime time.Duration){
+
+	for{
+		time.Sleep(clearTime)
+		dimsCacheMap.Range(func(key, value interface{}) bool {
+			ClearDimsCacheByRedis(key.(string))
+			dimsCacheMap.Delete(key)
+			return true
+		})
+
+	}
+}
+
 func ClearDimsCacheByRedis(key string){
 	redisConn := db.RedisPool.Get()
 	defer redisConn.Close()

@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"log"
+	"time"
 
 	"path/filepath"
 	"strconv"
@@ -232,7 +233,7 @@ func InitDebugSarama() (fn func(), err error) {
 
 func RefreshTableId() (fn func(), err error) {
 	fn = func() {
-		go report.RefreshTableIdMap()
+		go report.RefreshTableIdMap(5*time.Minute)
 	}
 	return
 }

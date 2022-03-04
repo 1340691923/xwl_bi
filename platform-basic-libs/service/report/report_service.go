@@ -22,18 +22,14 @@ type ReportService struct {
 
 var tableIdMap sync.Map
 
-func RefreshTableIdMap() {
+func RefreshTableIdMap(t time.Duration) {
 	for {
-		time.Sleep(time.Minute * 10)
+		time.Sleep(t)
 		tableIdMap.Range(func(key, value interface{}) bool {
 			tableIdMap.Delete(key)
 			return true
 		})
 	}
-}
-
-func NewReportService() *ReportService {
-	return &ReportService{buff: bytes.Buffer{}}
 }
 
 func (this *ReportService) GetTableid(appid, appkey string) (table string, err error) {

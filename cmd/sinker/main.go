@@ -111,10 +111,7 @@ func main() {
 	go action.MysqlConsumer()
 	go sinker.ClearDimsCacheByTime(time.Minute * 30)
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
-	pp, err := parser.NewParserPool()
-	if err != nil {
-		panic(err)
-	}
+
 	err = realTimeDataSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.RealTimeDataGroup, func(msg model.InputMessage, markFn func()) {
 		//ETL
 		var kafkaData model.KafkaData
@@ -239,10 +236,8 @@ func main() {
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_server_time", kafkaData.ReportTime)
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_kafka_offset", msg.Offset)
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_kafka_partition", msg.Partition)
-		jsonParser := pp.Get()
-		defer pp.Put(jsonParser)
 
-		metric, err := jsonParser.Parse(kafkaData.ReqData)
+		metric, err :=  parser.ParseKafkaData(kafkaData.ReqData)
 
 		//解析开发者上报的json数据
 		if err != nil {

@@ -47,7 +47,6 @@ func (this *ReportData2CK) Flush() (err error) {
 
 	rowsMap := map[string][][]interface{}{}
 
-
 	for bufferIndex := range this.buffer {
 		for tableName := range this.buffer[bufferIndex] {
 			rowArr := []interface{}{}

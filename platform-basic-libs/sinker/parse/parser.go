@@ -18,6 +18,7 @@ var (
 	ErrParseDateTime = errors.Errorf("value doesn't contain DateTime")
 )
 
+
 // Parse is the Parser interface
 type Parser interface {
 	Parse(bs []byte) (metric *FastjsonMetric, err error)
@@ -25,24 +26,31 @@ type Parser interface {
 
 // Pool may be used for pooling Parsers for similarly typed JSONs.
 type Pool struct {
+	name         string
 	timeZone     *time.Location
+	knownLayouts sync.Map
 	pool         sync.Pool
 }
 
 // NewParserPool creates a parser pool
-func NewParserPool() (pp *Pool, err error) {
-	var tz =  time.Local
+func NewParserPool(name string) (pp *Pool, err error) {
 
 	pp = &Pool{
-		timeZone:  tz,
+		name:      name,
+		timeZone:  time.Local,
 	}
 
 	return
 }
 
-func ParseKafkaData(pool *Pool, data []byte) (metric *FastjsonMetric, err error) {
-	jsonParser := pool.Get()
-	defer pool.Put(jsonParser)
+func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
+	pp, err := NewParserPool("fastjson")
+	if err != nil {
+		return
+	}
+
+	jsonParser := pp.Get()
+	defer pp.Put(jsonParser)
 	metric, err = jsonParser.Parse(data)
 	return
 }
@@ -53,7 +61,12 @@ func ParseKafkaData(pool *Pool, data []byte) (metric *FastjsonMetric, err error)
 func (pp *Pool) Get() Parser {
 	v := pp.pool.Get()
 	if v == nil {
-		return &FastjsonParser{pp: pp}
+		switch pp.name {
+		case "fastjson":
+			return &FastjsonParser{pp: pp}
+		default:
+			return &FastjsonParser{pp: pp}
+		}
 	}
 	return v.(Parser)
 }
@@ -67,15 +80,28 @@ func (pp *Pool) Put(p Parser) {
 }
 
 func (pp *Pool) ParseDateTime(key string, val string) (t time.Time, err error) {
-
+	var layout string
+	var lay interface{}
+	var ok bool
 	var t2 time.Time
 	if val == "" {
 		err = ErrParseDateTime
 		return
 	}
-
-
-	if t2, err = time.ParseInLocation("2006-01-02 15:04:05", val, pp.timeZone); err != nil {
+	if lay, ok = pp.knownLayouts.Load(key); !ok {
+		t2, layout = parseInLocation(val, pp.timeZone)
+		if layout == "" {
+			err = ErrParseDateTime
+			return
+		}
+		t = t2
+		return
+	}
+	if layout, ok = lay.(string); !ok {
+		err = ErrParseDateTime
+		return
+	}
+	if t2, err = time.ParseInLocation(layout, val, pp.timeZone); err != nil {
 		err = ErrParseDateTime
 		return
 	}

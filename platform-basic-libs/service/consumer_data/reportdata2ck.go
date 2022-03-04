@@ -60,7 +60,6 @@ func (this *ReportData2CK) Flush() (err error) {
 			dims, _ := TableColumnMap.Load(tableName)
 			for _, dim := range dims.([]*model2.ColumnWithType) {
 				val := parser.GetValueByType(this.buffer[bufferIndex][tableName], dim)
-				logs.Logger.Sugar().Errorf("dim.SourceName",dim.SourceName,val)
 				rowArr = append(rowArr, val)
 			}
 
@@ -109,13 +108,11 @@ func (this *ReportData2CK) Flush() (err error) {
 			defer stmt.Close()
 			haveFail := false
 			for _, row := range rowsMap[tableName.(string)] {
-				logs.Logger.Sugar().Errorf("bytesbuffer.String()",insertSql)
 
 				if _, err := stmt.Exec(row...); err != nil {
 					logs.Logger.Error("CK入库失败", zap.Error(err))
 					haveFail = true
 				}
-				logs.Logger.Sugar().Errorf("bytesbuffer.String() args",row...)
 			}
 			if !haveFail {
 				if err := tx.Commit(); err != nil {

@@ -99,7 +99,7 @@ func AddMetaEvent(kafkaData model.KafkaData) (err error) {
 
 func AddTableColumn(kafkaData model.KafkaData, failFunc func(data consumer_data.ReportAcceptStatusData), tableName string, ReqDataObject *parser.FastjsonMetric) (err error) {
 
-	dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, tableName, nil, db.ClickHouseSqlx)
+	dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, tableName, nil, db.ClickHouseSqlx,false)
 	if err != nil {
 		logs.Logger.Error("sinker.GetDims", zap.Error(err))
 		return

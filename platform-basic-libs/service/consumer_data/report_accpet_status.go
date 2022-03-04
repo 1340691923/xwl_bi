@@ -31,6 +31,7 @@ const FailStatus = 0
 const SuccessStatus = 1
 
 func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus {
+	logs.Logger.Info("NewReportAcceptStatus", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
 	reportAcceptStatus := &ReportAcceptStatus{
 		buffer:        make([]*ReportAcceptStatusData, 0, batchSize),
 		bufferMutex:   new(sync.RWMutex),
@@ -85,10 +86,9 @@ func (this *ReportAcceptStatus) Flush() (err error) {
 	if err := tx.Commit(); err != nil {
 		logs.Logger.Error("入库数据状态出现错误", zap.Error(err))
 	} else {
-		lostTime := time.Now().Sub(startNow).String()
 		len := len(this.buffer)
 		if len > 0 {
-			logs.Logger.Info("入库数据状态成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
+			logs.Logger.Info("入库数据状态成功", zap.String("所花时间",  time.Now().Sub(startNow).String()), zap.Int("数据长度为", len))
 		}
 	}
 	stmt.Close()

@@ -24,6 +24,7 @@ type RealTimeWarehousing struct {
 }
 
 func NewRealTimeWarehousing(batchSize, flushInterval int) *RealTimeWarehousing {
+	logs.Logger.Info("NewRealTimeWarehousing", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
 	realTimeWarehousing := &RealTimeWarehousing{
 		buffer:        make([]*RealTimeWarehousingData, 0, batchSize),
 		bufferMutex:   new(sync.RWMutex),

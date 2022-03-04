@@ -106,7 +106,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx)
+		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx,true)
 		if err != nil {
 			logs.Logger.Error("sinker.GetDims", zap.Error(err))
 			this.FastError(ctx, errors.New("服务异常"))

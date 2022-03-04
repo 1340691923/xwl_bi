@@ -46,18 +46,19 @@ func (this *ReportData2CK) Flush() (err error) {
 	startNow := time.Now()
 
 	rowsMap := map[string][][]interface{}{}
+	rowArr := []interface{}{}
+	rows := [][]interface{}{}
 	for bufferIndex := range this.buffer {
 		for tableName := range this.buffer[bufferIndex] {
-			rows := [][]interface{}{}
+			rows := rows[0:0]
 			if _, haveKey := rowsMap[tableName]; haveKey {
 				rows = rowsMap[tableName]
 			} else {
 				rowsMap[tableName] = rows
 			}
-			v, _ := TableColumnMap.Load(tableName)
-			dims := v.([]*model2.ColumnWithType)
-			var rowArr []interface{}
-			for _, dim := range dims {
+			dims, _ := TableColumnMap.Load(tableName)
+			rowArr = rowArr[0:0]
+			for _, dim := range dims.([]*model2.ColumnWithType) {
 				val := parser.GetValueByType(this.buffer[bufferIndex][tableName], dim)
 				rowArr = append(rowArr, val)
 			}
@@ -68,11 +69,9 @@ func (this *ReportData2CK) Flush() (err error) {
 
 	bytesbuffer:=bytes.Buffer{}
 
-	TableColumnMap.Range(func(key, value interface{}) bool {
+	TableColumnMap.Range(func(tableName, value interface{}) bool {
 
-		tableName := key.(string)
-
-		if _, haveKey := rowsMap[tableName]; haveKey {
+		if _, haveKey := rowsMap[tableName.(string)]; haveKey {
 
 			seriesDims := value.([]*model2.ColumnWithType)
 			serDimsQuoted := make([]string, len(seriesDims))
@@ -84,7 +83,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			}
 
 			bytesbuffer.WriteString("INSERT INTO ")
-			bytesbuffer.WriteString(tableName)
+			bytesbuffer.WriteString(tableName.(string))
 			bytesbuffer.WriteString(" (")
 			bytesbuffer.WriteString(strings.Join(serDimsQuoted, ","))
 			bytesbuffer.WriteString(") ")
@@ -92,22 +91,23 @@ func (this *ReportData2CK) Flush() (err error) {
 			bytesbuffer.WriteString(strings.Join(params, ","))
 			bytesbuffer.WriteString(")")
 
-			insertSql := bytesbuffer.String()
-			bytesbuffer.Reset()
+			defer func() {
+				bytesbuffer.Reset()
+			}()
+
 			tx, err := db.ClickHouseSqlx.Begin()
 			if err != nil {
 				logs.Logger.Error("CK入库失败", zap.Error(err))
 				return false
 			}
-			stmt, err := tx.Prepare(insertSql)
+			stmt, err := tx.Prepare(bytesbuffer.String())
 			if err != nil {
 				logs.Logger.Error("CK入库失败", zap.Error(err))
 				return false
 			}
 			defer stmt.Close()
 			haveFail := false
-			for _, row := range rowsMap[tableName] {
-				logs.Logger.Sugar().Infof("insertSQL", insertSql,row)
+			for _, row := range rowsMap[tableName.(string)] {
 				if _, err := stmt.Exec(row...); err != nil {
 					logs.Logger.Error("CK入库失败", zap.Error(err))
 					haveFail = true
@@ -118,9 +118,8 @@ func (this *ReportData2CK) Flush() (err error) {
 					logs.Logger.Error("CK入库失败", zap.Error(err))
 					return false
 				} else {
-					lostTime := time.Now().Sub(startNow).String()
 					len := len(this.buffer)
-					logs.Logger.Info("CK入库成功，", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
+					logs.Logger.Info("CK入库成功，", zap.String("所花时间", time.Now().Sub(startNow).String()), zap.Int("数据长度为", len))
 				}
 			}
 		}

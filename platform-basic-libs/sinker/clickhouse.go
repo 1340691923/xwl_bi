@@ -84,12 +84,14 @@ func ClearDimsCacheByKey(key string){
 	dimsCacheMap.Delete(key)
 }
 
-func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB) (dims []*model2.ColumnWithType, err error) {
-	dimsCachekey := GetDimsCachekey(database, table)
-	cache,load := dimsCacheMap.Load(dimsCachekey)
+func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onlyRedis bool) (dims []*model2.ColumnWithType, err error) {
 
-	if load {
-		return cache.([]*model2.ColumnWithType),nil
+	dimsCachekey := GetDimsCachekey(database, table)
+	if !onlyRedis{
+		cache,load := dimsCacheMap.Load(dimsCachekey)
+		if load {
+			return cache.([]*model2.ColumnWithType),nil
+		}
 	}
 
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary

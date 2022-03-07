@@ -12,7 +12,6 @@ import (
 )
 
 type FastjsonParser struct {
-	pp  *Pool
 	fjp fastjson.Parser
 }
 
@@ -22,12 +21,11 @@ func (p *FastjsonParser) Parse(bs []byte) (metric *FastjsonMetric, err error) {
 		err = errors.Wrapf(err, "")
 		return
 	}
-	metric = &FastjsonMetric{pp: p.pp, value: value}
+	metric = &FastjsonMetric{ value: value}
 	return
 }
 
 type FastjsonMetric struct {
-	pp    *Pool
 	value *fastjson.Value
 }
 
@@ -106,12 +104,28 @@ func (c *FastjsonMetric) GetDateTime(key string, nullable bool) (val interface{}
 			val = getDefaultDateTime(nullable)
 			return
 		}
-		if val, err = c.pp.ParseDateTime(key, util.Bytes2str(b)); err != nil {
+		if val, err = c.ParseDateTime(util.Bytes2str(b)); err != nil {
 			val = getDefaultDateTime(nullable)
 		}
 	default:
 		val = getDefaultDateTime(nullable)
 	}
+	return
+}
+
+
+func (c *FastjsonMetric) ParseDateTime(val string) (t time.Time, err error) {
+
+	var t2 time.Time
+	if val == "" {
+		err = ErrParseDateTime
+		return
+	}
+	if t2, err = time.ParseInLocation(util.TimeFormat, val, time.Local); err != nil {
+		err = ErrParseDateTime
+		return
+	}
+	t = t2.UTC()
 	return
 }
 
@@ -175,7 +189,7 @@ func (c *FastjsonMetric) GetArray(key string, typ int) (val interface{}) {
 					t = Epoch
 				} else {
 					var err error
-					if t, err = c.pp.ParseDateTime(key, util.Bytes2str(b)); err != nil {
+					if t, err = c.ParseDateTime(util.Bytes2str(b)); err != nil {
 						t = Epoch
 					}
 				}
@@ -292,7 +306,7 @@ func FjDetectType(v *fastjson.Value) (typ int) {
 	case fastjson.TypeString:
 		typ = String
 		if val, err := v.StringBytes(); err == nil {
-			if _, layout := parseInLocation(util.Bytes2str(val), time.Local); layout != "" {
+			if _, err := parseInLocation(util.Bytes2str(val), time.Local); err == nil {
 				typ = DateTime
 			}
 		}

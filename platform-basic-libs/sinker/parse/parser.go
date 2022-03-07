@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"github.com/1340691923/xwl_bi/engine/logs"
+	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"math"
 	"sync"
 	"time"
@@ -17,7 +18,6 @@ var (
 	Epoch            = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 	ErrParseDateTime = errors.Errorf("value doesn't contain DateTime")
 )
-
 
 // Parse is the Parser interface
 type Parser interface {
@@ -36,14 +36,14 @@ type Pool struct {
 func NewParserPool(name string) (pp *Pool, err error) {
 
 	pp = &Pool{
-		name:      name,
-		timeZone:  time.Local,
+		name:     name,
+		timeZone: time.Local,
 	}
 
 	return
 }
 
-func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
+/*func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
 	pp, err := NewParserPool("fastjson")
 	if err != nil {
 		return
@@ -53,7 +53,7 @@ func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
 	defer pp.Put(jsonParser)
 	metric, err = jsonParser.Parse(data)
 	return
-}
+}*/
 
 // Get returns a Parser from pp.
 //
@@ -63,9 +63,9 @@ func (pp *Pool) Get() Parser {
 	if v == nil {
 		switch pp.name {
 		case "fastjson":
-			return &FastjsonParser{pp: pp}
+			return &FastjsonParser{}
 		default:
-			return &FastjsonParser{pp: pp}
+			return &FastjsonParser{}
 		}
 	}
 	return v.(Parser)
@@ -77,36 +77,6 @@ func (pp *Pool) Get() Parser {
 // is put into pp.
 func (pp *Pool) Put(p Parser) {
 	pp.pool.Put(p)
-}
-
-func (pp *Pool) ParseDateTime(key string, val string) (t time.Time, err error) {
-	var layout string
-	var lay interface{}
-	var ok bool
-	var t2 time.Time
-	if val == "" {
-		err = ErrParseDateTime
-		return
-	}
-	if lay, ok = pp.knownLayouts.Load(key); !ok {
-		t2, layout = parseInLocation(val, pp.timeZone)
-		if layout == "" {
-			err = ErrParseDateTime
-			return
-		}
-		t = t2
-		return
-	}
-	if layout, ok = lay.(string); !ok {
-		err = ErrParseDateTime
-		return
-	}
-	if t2, err = time.ParseInLocation(layout, val, pp.timeZone); err != nil {
-		err = ErrParseDateTime
-		return
-	}
-	t = t2.UTC()
-	return
 }
 
 func makeArray(typ int) (val interface{}) {
@@ -125,17 +95,14 @@ func makeArray(typ int) (val interface{}) {
 	return
 }
 
-func parseInLocation(val string, loc *time.Location) (t time.Time, layout string) {
-	var err error
-	var lay string
-	for _, lay = range Layouts {
-		if t, err = time.ParseInLocation(lay, val, loc); err == nil {
-			t = t.UTC()
-			layout = lay
-			return
-		}
+func parseInLocation(val string, loc *time.Location) (t time.Time, err error) {
+
+	if t, err = time.ParseInLocation(util.TimeFormat, val, loc); err == nil {
+		t = t.UTC()
+		return
 	}
-	return
+
+	return t,err
 }
 
 func UnixFloat(sec float64) (t time.Time) {

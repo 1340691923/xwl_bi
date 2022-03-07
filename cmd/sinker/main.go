@@ -146,6 +146,11 @@ func main() {
 		panic(err)
 	}
 
+	parserPool,err := parser.NewParserPool("fastjson")
+	if err!=nil{
+		panic(err)
+	}
+
 	err = reportData2CKSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.ReportData2CKGroup, func(msg model.InputMessage, markFn func()) {
 
 		var kafkaData model.KafkaData
@@ -236,8 +241,9 @@ func main() {
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_server_time", kafkaData.ReportTime)
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_kafka_offset", msg.Offset)
 		kafkaData.ReqData, _ = sjson.SetBytes(kafkaData.ReqData, "xwl_kafka_partition", msg.Partition)
-
-		metric, err :=  parser.ParseKafkaData(kafkaData.ReqData)
+		pool := parserPool.Get()
+		defer parserPool.Put(pool)
+		metric, err :=  pool.Parse(kafkaData.ReqData)
 
 		//解析开发者上报的json数据
 		if err != nil {

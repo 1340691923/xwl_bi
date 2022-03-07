@@ -1,0 +1,2 @@
+ cd vue && npm run build:prod && cd .. && SET CGO_ENABLED=0&& SET GOOS=darwin&& SET GOARCH=amd64&& go build  -ldflags="-w -s" -o bin/mac/manager cmd/manager/main.go  && go build  -ldflags="-w -s" -o bin/mac/report_server cmd/report_server/main.go && go build  -ldflags="-w -s" -o bin/mac/sinker cmd/sinker/main.go && go build  -ldflags="-w -s" -o bin/mac/init_app cmd/init_app/main.go
+echo "build success"

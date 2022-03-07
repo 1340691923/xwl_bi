@@ -95,7 +95,7 @@ export default {
     },
     async addForm() {
       const input = JSON.parse(JSON.stringify(this.form))
-      input['data'] = JSON.stringify(this.Data)
+      input['data'] = JSON.stringify(this.data)
       const res = await AddReportTable(input)
       if (res.code != 0) {
         this.$message({

@@ -263,6 +263,15 @@ export default {
         })
       }
 
+      if(res.data.list != null){
+        let tmp = {}
+        for(let v of res.data.list){
+          let key = Object.keys(v)[0]
+          tmp[key] = v[key]
+        }
+        res.data.list = tmp
+      }
+
       if (res.data.list == null || Object.keys(res.data.list).length == 0) {
         res.data.list = {}
         this.$message({

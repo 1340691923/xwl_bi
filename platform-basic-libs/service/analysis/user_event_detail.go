@@ -68,11 +68,14 @@ func (this *UserEventDetail) GetList() (interface{}, error) {
 
 	res := map[string][]map[string]interface{}{}
 
+	tmp := []string{}
+
 	for index := range list {
 		if _, ok := res[list[index]["date_year"].(string)]; !ok {
 			m := []map[string]interface{}{}
 			m = append(m, list[index])
 			res[list[index]["date_year"].(string)] = m
+			tmp = append(tmp, list[index]["date_year"].(string))
 		} else {
 			m := res[list[index]["date_year"].(string)]
 			m = append(m, list[index])
@@ -80,7 +83,15 @@ func (this *UserEventDetail) GetList() (interface{}, error) {
 		}
 	}
 
-	return map[string]interface{}{"list": res}, nil
+	resList := []map[string][]map[string]interface{}{}
+
+	for index:= range tmp{
+		val := res[tmp[index]]
+		m := map[string][]map[string]interface{}{tmp[index]:val}
+		resList = append(resList, m)
+	}
+
+	return map[string]interface{}{"list": resList}, nil
 }
 
 func (this *UserEventDetail) GetExecSql() (SQL string, allArgs []interface{}, err error) {

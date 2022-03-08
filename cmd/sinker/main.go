@@ -115,6 +115,7 @@ func main() {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 	err = realTimeDataSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.RealTimeDataGroup, func(msg model.InputMessage, markFn func()) {
+
 		//ETL
 		var kafkaData model.KafkaData
 		err = json.Unmarshal(msg.Value, &kafkaData)

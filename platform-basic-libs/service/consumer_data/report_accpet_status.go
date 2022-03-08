@@ -27,8 +27,10 @@ type ReportAcceptStatus struct {
 	flushInterval int
 }
 
-const FailStatus = 0
-const SuccessStatus = 1
+const (
+	FailStatus    = 0
+	SuccessStatus = 1
+)
 
 func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus {
 	logs.Logger.Info("NewReportAcceptStatus", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
@@ -49,7 +51,7 @@ func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus
 func (this *ReportAcceptStatus) Flush() (err error) {
 
 	this.bufferMutex.Lock()
-	if len(this.buffer)==0{
+	if len(this.buffer) == 0 {
 		this.bufferMutex.Unlock()
 		return nil
 	}
@@ -88,7 +90,7 @@ func (this *ReportAcceptStatus) Flush() (err error) {
 	} else {
 		len := len(this.buffer)
 		if len > 0 {
-			logs.Logger.Info("入库数据状态成功", zap.String("所花时间",  time.Now().Sub(startNow).String()), zap.Int("数据长度为", len))
+			logs.Logger.Info("入库数据状态成功", zap.String("所花时间", time.Now().Sub(startNow).String()), zap.Int("数据长度为", len))
 		}
 	}
 	stmt.Close()

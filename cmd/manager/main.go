@@ -51,6 +51,8 @@ func main() {
 		panic(err)
 	}
 
+	defer app.Close()
+
 	app.RunManager()
 
 	app.WaitForExitSign(func() {

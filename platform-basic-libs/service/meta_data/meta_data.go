@@ -275,14 +275,6 @@ FROM
 	(select * from meta_attr_relation where app_id = ?) mu
 	INNER JOIN (select * from meta_event where appid = ?  )  e ON e.event_name = mu.event_name
 	INNER JOIN (select * from attribute where app_id = ? and (status = 1 or attribute_type = 1) and attribute_source = 2 and attribute_name not in ('xwl_part_event','xwl_part_date','xwl_kafka_offset') ) a ON a.attribute_name = mu.event_attr `
-	type eventNameAndTheAttr struct {
-		EventNameDesc string `json:"event_name_desc" db:"event_name_desc"`
-		EventName     string `json:"event_name" db:"event_name"`
-		AttributeName string `json:"attribute_name" db:"attribute_name"`
-		AttributeDesc string `json:"attribute_desc" db:"attribute_desc"`
-		DataType      string `json:"data_type" db:"data_type"`
-		AttributeType string `json:"attribute_type" db:"attribute_type"`
-	}
 
 	err = db.Sqlx.Select(&eventNameAndTheAttrList, getEventNameAndTheAttrSql, appid, appid, appid)
 	if err != nil {

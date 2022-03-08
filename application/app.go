@@ -149,7 +149,6 @@ func(this *App) RunManager() {
 	}()
 }
 
-
 func(this *App) WaitForExitSign(exitFunc ...func()) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)

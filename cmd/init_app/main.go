@@ -48,6 +48,8 @@ func main() {
 		panic(err)
 	}
 
+	defer app.Close()
+
 	kafka.Init()
 	ck.Init()
 	mysql.Init()

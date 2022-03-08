@@ -82,6 +82,8 @@ func main() {
 		panic(err)
 	}
 
+	defer app.Close()
+
 	geoip2, err := geoip.NewGeoip(geoip.GeoipMmdbByte)
 
 	if err != nil {

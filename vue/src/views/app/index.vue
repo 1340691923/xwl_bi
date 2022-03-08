@@ -453,7 +453,7 @@ export default {
     async init() {
       const userListRes = await userList()
       if (userListRes) {
-        for (var v of userListRes.data) {
+        for (let v of userListRes.data) {
           this.userConfig[v.id] = v.realname
           this.allUserConfig.push(
             {

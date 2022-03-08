@@ -76,13 +76,13 @@ func (this *Geoip2) GetAreaFromIP(rawIP string) (province, city string, err erro
 	ip := net.ParseIP(rawIP)
 	if ip == nil {
 		logs.Logger.Error("net.ParseIP", zap.String("can't parse ip", rawIP))
-		return "", "", nil
+		return "未知", "未知", nil
 	}
 
 	err = this.mmdb.Lookup(ip, &res)
 	if err != nil {
 		logs.Logger.Error("this.mmdb.Lookup", zap.String("err", err.Error()))
-		return "", "", nil
+		return "未知", "未知", nil
 	}
 
 	if len(res.Subdivisions) > 0 {

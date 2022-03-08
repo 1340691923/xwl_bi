@@ -145,13 +145,13 @@ func (this *PannelService) GetPannelList(managerUid int32, appid int) (res []Pan
 	p1.id AS folder_id,
 	ifnull(p2.report_tables,'') as report_tables ,
 	 ifnull(p2.id,0)as pannel_id,
-	ifnull(p2.pannel_name,'') as pannel_name,ifnull(p2.create_by,0) as create_by,ifnull(FIND_IN_SET(?,p2.managers),0) as folder_type,ifnull(p2.managers,'') as managers
+	ifnull(p2.pannel_name,'') as pannel_name,ifnull(p1.create_by,0) as create_by,ifnull(FIND_IN_SET(?,p2.managers),0) as folder_type,ifnull(p2.managers,'') as managers
 FROM
 	pannel_folder p1
 	LEFT JOIN pannel p2 ON p1.id = p2.folder_id 
 	
 			WHERE
-				(p2.create_by = ? OR FIND_IN_SET(?,p2.managers)  or isnull(p2.create_by))   and appid= ?`
+				(p1.create_by = ? OR FIND_IN_SET(?,p2.managers)  )   and appid= ?`
 
 	err = db.Sqlx.Select(&res, sql, managerUid, managerUid, managerUid, appid)
 

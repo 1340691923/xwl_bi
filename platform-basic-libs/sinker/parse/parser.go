@@ -28,7 +28,6 @@ type Parser interface {
 type Pool struct {
 	name         string
 	timeZone     *time.Location
-	knownLayouts sync.Map
 	pool         sync.Pool
 }
 
@@ -42,18 +41,6 @@ func NewParserPool(name string) (pp *Pool, err error) {
 
 	return
 }
-
-/*func ParseKafkaData(data []byte) (metric *FastjsonMetric, err error) {
-	pp, err := NewParserPool("fastjson")
-	if err != nil {
-		return
-	}
-
-	jsonParser := pp.Get()
-	defer pp.Put(jsonParser)
-	metric, err = jsonParser.Parse(data)
-	return
-}*/
 
 // Get returns a Parser from pp.
 //

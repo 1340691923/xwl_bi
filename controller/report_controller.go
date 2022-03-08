@@ -11,15 +11,15 @@ import (
 	"github.com/1340691923/xwl_bi/platform-basic-libs/sinker"
 	parser "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/parse"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
 	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 	"math"
 	"strings"
+	"sync"
 	"time"
 )
-
-
 
 type ReportController struct {
 	BaseController
@@ -27,12 +27,27 @@ type ReportController struct {
 
 var parserPool *parser.Pool
 
-func init(){
+var reportTypeDataPool *sync.Pool
+
+var Marshaler func(v interface{}) ([]byte, error)
+
+func init() {
 	var err error
-	parserPool,err = parser.NewParserPool("fastjson")
-	if err!=nil{
+	parserPool, err = parser.NewParserPool("fastjson")
+	if err != nil {
 		panic(err)
 	}
+	reportTypeDataPool = new(sync.Pool)
+	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	Marshaler = json.Marshal
+}
+
+func GetReportTypeDataPool()*report.ReportTypeData{
+	v := reportTypeDataPool.Get()
+	if reportTypeDataPool.Get() != nil{
+		return new(report.ReportTypeData)
+	}
+	return v.(*report.ReportTypeData)
 }
 
 //上报接口
@@ -43,26 +58,42 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 	}
 
 	var (
-		typ       = ctx.UserValue("typ").(string)
-		appid     = ctx.UserValue("appid").(string)
-		appkey    = ctx.UserValue("appkey").(string)
-		debug     = ctx.UserValue("debug").(string)
-		eventName = ctx.UserValue("eventName").(string)
-		body      = ctx.Request.Body()
+		typ    = ctx.UserValue("typ").(string)
+		appkey = ctx.UserValue("appkey").(string)
+		err error
 	)
-	if strings.TrimSpace(eventName) == ""{
+
+	reportTypeData := GetReportTypeDataPool()
+
+	reportTypeData.Appid = ctx.UserValue("appid").(string)
+	reportTypeData.Debug = ctx.UserValue("debug").(string)
+	reportTypeData.EventName = ctx.UserValue("eventName").(string)
+	reportTypeData.Body = ctx.Request.Body()
+
+	defer func() {
+		reportTypeData.Appid = ""
+		reportTypeData.TableId = ""
+		reportTypeData.TimeNow = ""
+		reportTypeData.Debug = ""
+		reportTypeData.EventName = ""
+		reportTypeData.Ip = ""
+		reportTypeData.Body = nil
+		reportTypeDataPool.Put(reportTypeData)
+	}()
+
+	if strings.TrimSpace(reportTypeData.EventName) == "" {
 		this.FastError(ctx, errors.New("事件名 不能为空"))
 		return
 	}
 
-	if strings.TrimSpace(appid) == ""{
+	if strings.TrimSpace(reportTypeData.Appid) == "" {
 		this.FastError(ctx, errors.New("appid 不能为空"))
 		return
 	}
 
 	reportService := report.ReportService{}
 
-	tableId, err := reportService.GetTableid(appid, appkey)
+	reportTypeData.TableId, err = reportService.GetTableid(reportTypeData.Appid, appkey)
 	if err != nil {
 		this.FastError(ctx, err)
 		return
@@ -75,36 +106,34 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-
 	defer duck.Put()
 
-	gjsonArr := gjson.GetManyBytes(body, "xwl_distinct_id", "xwl_ip", "xwl_part_date")
+	gjsonArr := gjson.GetManyBytes(reportTypeData.Body, "xwl_distinct_id", "xwl_ip", "xwl_part_date")
 
 	xwlDistinctId := gjsonArr[0].String()
-	xwlIp := gjsonArr[1].String()
-	xwlPartDate := gjsonArr[2].String()
+	reportTypeData.Ip = gjsonArr[1].String()
+	reportTypeData.TimeNow = gjsonArr[2].String()
 	if xwlDistinctId == "" {
 		this.FastError(ctx, errors.New("xwl_distinct_id 不能为空"))
 		return
 	}
 
-	if xwlIp == "" {
-		xwlIp = util.CtxClientIP(ctx)
+	if reportTypeData.Ip == "" {
+		reportTypeData.Ip = util.CtxClientIP(ctx)
 	}
 
-	if xwlPartDate == "" {
-		xwlPartDate = time.Now().Format(util.TimeFormat)
+	if reportTypeData.TimeNow  == "" {
+		reportTypeData.TimeNow  = time.Now().Format(util.TimeFormat)
 	}
 
-
-	duck.NewReportType(appid, tableId, debug, xwlPartDate, eventName, xwlIp, ctx.PostBody())
+	duck.NewReportType(reportTypeData)
 
 	kafkaData := duck.GetkafkaData()
 
-	if reportService.IsDebugUser(debug, xwlDistinctId, tableId) {
+	if reportService.IsDebugUser(reportTypeData.Debug, xwlDistinctId, reportTypeData.TableId) {
 		pool := parserPool.Get()
 		defer parserPool.Put(pool)
-		metric, debugErr :=  pool.Parse(body)
+		metric, debugErr := pool.Parse(reportTypeData.Body)
 
 		if debugErr != nil {
 			logs.Logger.Error("parser.ParseKafkaData ", zap.Error(err))
@@ -112,7 +141,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx,true)
+		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx, true)
 		if err != nil {
 			logs.Logger.Error("sinker.GetDims", zap.Error(err))
 			this.FastError(ctx, errors.New("服务异常"))
@@ -144,7 +173,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			}
 		}
 
-		xwlUpdateTime := gjson.GetBytes(body, "xwl_update_time").String()
+		xwlUpdateTime := gjson.GetBytes(reportTypeData.Body, "xwl_update_time").String()
 		clinetT := util.Str2Time(xwlUpdateTime, util.TimeFormat)
 		serverT := util.Str2Time(kafkaData.ReportTime, util.TimeFormat)
 		if math.Abs(serverT.Sub(clinetT).Minutes()) > 10 {
@@ -156,7 +185,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			m["data_judge"] = "数据检验通过"
 		}
 
-		err = reportService.InflowOfDebugData(m, eventName)
+		err = reportService.InflowOfDebugData(m, reportTypeData.EventName)
 
 		if err != nil {
 			logs.Logger.Error("reportService.InflowOfDebugData", zap.Error(err))
@@ -169,7 +198,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			this.FastError(ctx, my_error.NewError(m["error_reason"].(string), 10006))
 			return
 		}
-		if debug == report.DebugNotToDB {
+		if reportTypeData.Debug == report.DebugNotToDB {
 			this.Output(ctx, map[string]interface{}{
 				"code": 0,
 				"msg":  "上报成功（数据不入库）",
@@ -178,8 +207,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-
-	err = duck.InflowOfKakfa()
+	err = duck.InflowOfKakfa(Marshaler)
 	if err != nil {
 		this.FastError(ctx, err)
 		return

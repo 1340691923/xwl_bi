@@ -22,7 +22,8 @@ func InArr(array []int, column int) bool {
 
 func InstrArr(array []string, column string) bool {
 	i := 0
-	for i < len(array) {
+	l := len(array)
+	for i < l {
 		if array[i] == column {
 			return true
 		}

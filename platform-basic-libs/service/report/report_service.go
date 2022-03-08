@@ -17,7 +17,7 @@ import (
 )
 
 type ReportService struct {
-	buff bytes.Buffer
+
 }
 
 var tableIdMap sync.Map
@@ -33,12 +33,11 @@ func RefreshTableIdMap(t time.Duration) {
 }
 
 func (this *ReportService) GetTableid(appid, appkey string) (table string, err error) {
-
-	this.buff.Reset()
-	this.buff.WriteString(appid)
-	this.buff.WriteString("_xwl_")
-	this.buff.WriteString(appkey)
-	key := this.buff.String()
+	buff := new(bytes.Buffer)
+	buff.WriteString(appid)
+	buff.WriteString("_xwl_")
+	buff.WriteString(appkey)
+	key := buff.String()
 
 	if val, found := tableIdMap.Load(key); found {
 		table = val.(string)

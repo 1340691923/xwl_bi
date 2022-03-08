@@ -7,14 +7,13 @@ import (
 	"sync"
 
 	"github.com/Shopify/sarama"
-	jsoniter "github.com/json-iterator/go"
 	"time"
 )
 
 type ReportInterface interface {
-	NewReportType(appid, tableId, debug, timeNow, eventName, ip string, body []byte)
+	NewReportType(data *ReportTypeData)
 	GetkafkaData() model.KafkaData
-	InflowOfKakfa() (err error)
+	InflowOfKakfa(marshaler func(v interface{}) ([]byte, error)) (err error)
 	Put()
 }
 
@@ -34,13 +33,23 @@ var eventPool = sync.Pool{
 	},
 }
 
-func (this *UserReport) NewReportType(appid, tableId, debug, timeNow, eventName, ip string, body []byte) {
-	this.kafkaData.APPID = appid
-	this.kafkaData.TableId = tableId
-	this.kafkaData.Debug = debug
-	this.kafkaData.ReqData = body
-	this.kafkaData.Ip = ip
-	this.kafkaData.ReportTime = timeNow
+type ReportTypeData struct {
+	Appid string
+	TableId string
+	Debug string
+	TimeNow string
+	EventName string
+	Ip string
+	Body []byte
+}
+
+func (this *UserReport) NewReportType(data *ReportTypeData) {
+	this.kafkaData.APPID = data.Appid
+	this.kafkaData.TableId = data.TableId
+	this.kafkaData.Debug = data.Debug
+	this.kafkaData.ReqData = data.Body
+	this.kafkaData.Ip = data.Ip
+	this.kafkaData.ReportTime = data.TimeNow
 	this.kafkaData.ReportType = model.UserReportType
 	this.kafkaData.EventName = "用户属性"
 }
@@ -49,12 +58,11 @@ func (this *UserReport) GetkafkaData() model.KafkaData {
 	return this.kafkaData
 }
 
-func (this *UserReport) InflowOfKakfa() (err error) {
+func (this *UserReport) InflowOfKakfa(marshaler func(v interface{}) ([]byte, error)) (err error) {
 
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	msg := &sarama.ProducerMessage{}
 	msg.Topic = model.GlobConfig.Comm.Kafka.ReportTopicName
-	sendData, _ := json.Marshal(this.kafkaData)
+	sendData, _ := marshaler(this.kafkaData)
 	msg.Value = sarama.ByteEncoder(sendData)
 	msg.Timestamp = time.Now()
 
@@ -69,22 +77,22 @@ type EventReport struct {
 	kafkaData model.KafkaData
 }
 
-func (this *EventReport) NewReportType(appid, tableId, debug, timeNow, eventName, ip string, body []byte) {
-	this.kafkaData.APPID = appid
-	this.kafkaData.TableId = tableId
-	this.kafkaData.Debug = debug
-	this.kafkaData.ReqData = body
-	this.kafkaData.ReportTime = timeNow
+func (this *EventReport) NewReportType(data *ReportTypeData) {
+	this.kafkaData.APPID = data.Appid
+	this.kafkaData.TableId = data.TableId
+	this.kafkaData.Debug = data.Debug
+	this.kafkaData.ReqData = data.Body
+	this.kafkaData.ReportTime = data.TimeNow
 	this.kafkaData.ReportType = model.EventReportType
-	this.kafkaData.EventName = eventName
-	this.kafkaData.Ip = ip
+	this.kafkaData.EventName = data.EventName
+	this.kafkaData.Ip = data.Ip
 }
 
-func (this *EventReport) InflowOfKakfa() (err error) {
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+func (this *EventReport) InflowOfKakfa(marshaler func(v interface{}) ([]byte, error)) (err error) {
+
 	msg := &sarama.ProducerMessage{}
 	msg.Topic = model.GlobConfig.Comm.Kafka.ReportTopicName
-	sendData, _ := json.Marshal(this.kafkaData)
+	sendData, _ := marshaler(this.kafkaData)
 
 	msg.Value = sarama.ByteEncoder(sendData)
 	msg.Timestamp = time.Now()

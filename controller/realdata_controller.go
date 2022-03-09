@@ -58,7 +58,7 @@ func (this RealDataController) List(ctx *fiber.Ctx) error {
 	if strings.TrimSpace(reqData.SearchKw)!="" {
 		filterSql =  filterSql+ ` and event_name like '%`+reqData.SearchKw+`%' `
 	}
-	sql := `select report_data,event_name,create_time as create_time from xwl_real_time_warehousing where   table_id = ?    `+filterSql+` order by create_time desc limit 0,1000;`
+	sql := `select report_data,event_name,create_time as create_time from xwl_real_time_warehousing prewhere   table_id = ?    `+filterSql+` order by create_time desc limit 0,1000;`
 	logs.Logger.Sugar().Infof("sql",sql,args)
 	var res []Res
 	err := db.ClickHouseSqlx.Select(&res,sql,

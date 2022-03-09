@@ -114,6 +114,8 @@ func (this *Trace) GetTableSql() (SQL string, allArgs []interface{}, err error) 
 
 	allArgs = append(allArgs, whereFilterArgs...)
 
+	allArgs = append(allArgs, this.args...)
+
 	allArgs = append(allArgs, userFilterArgs...)
 
 	SQL = `
@@ -288,6 +290,8 @@ func NewTrace(reqData []byte) (Ianalysis, error) {
 	obj.eventNameMapStr = mapStr
 
 	obj.sql, obj.args, err = utils.GetUserGroupSqlAndArgs(obj.req.UserGroup, obj.req.Appid)
+
+
 	if err != nil {
 		return nil, err
 	}

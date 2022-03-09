@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"runtime"
 	"strings"
+	"time"
 )
 
 func Cors(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
@@ -27,6 +28,14 @@ func Cors(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")             //允许访问所有域
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type") //header的类型
 		handle(ctx)
+	}
+}
+
+func FTimer(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		startT := time.Now()
+		handle(ctx)
+		logs.Logger.Info("handle lost time",zap.String("time",time.Now().Sub(startT).String()))
 	}
 }
 

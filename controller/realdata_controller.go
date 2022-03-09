@@ -38,36 +38,33 @@ func (this RealDataController) List(ctx *fiber.Ctx) error {
 	appid := strconv.Itoa(reqData.Appid)
 
 	type Res struct {
-		CreateTime string `json:"create_time" db:"-"`
+		CreateTime   string    `json:"create_time" db:"-"`
 		CreateTimeDb time.Time `json:"-" db:"create_time"`
-		EventName string `json:"event_name" db:"event_name"`
-		ReportData string `json:"report_data" db:"report_data"`
+		EventName    string    `json:"event_name" db:"event_name"`
+		ReportData   string    `json:"report_data" db:"report_data"`
 	}
 
 	filterSql := ""
 
-	date := strings.Split(reqData.Date,",")
+	date := strings.Split(reqData.Date, ",")
 
 	args := []interface{}{appid}
 
-	if len(date) == 2{
-		filterSql = filterSql+  ` and create_time >= toDateTime(?) and create_time <=toDateTime(?) `
-		args = append(args, date[0],date[1])
+	if len(date) == 2 {
+		filterSql = filterSql + ` and create_time >= toDateTime(?) and create_time <=toDateTime(?) `
+		args = append(args, date[0], date[1])
 	}
-	logs.Logger.Sugar().Infof("reqData.SearchKw",reqData.SearchKw)
-	if strings.TrimSpace(reqData.SearchKw)!="" {
-		filterSql =  filterSql+ ` and event_name like '%`+reqData.SearchKw+`%' `
+	if strings.TrimSpace(reqData.SearchKw) != "" {
+		filterSql = filterSql + ` and event_name like '%` + reqData.SearchKw + `%' `
 	}
-	sql := `select report_data,event_name,create_time as create_time from xwl_real_time_warehousing prewhere   table_id = ?    `+filterSql+` order by create_time desc limit 0,1000;`
-	logs.Logger.Sugar().Infof("sql",sql,args)
+	sql := `select report_data,event_name,create_time as create_time from xwl_real_time_warehousing prewhere   table_id = ?    ` + filterSql + ` order by create_time desc limit 1000;`
+	logs.Logger.Sugar().Infof("sql", sql, args)
 	var res []Res
-	err := db.ClickHouseSqlx.Select(&res,sql,
-		args...,
-	)
-	if  err != nil {
+	err := db.ClickHouseSqlx.Select(&res, sql, args...)
+	if err != nil {
 		return this.Error(ctx, err)
 	}
-	for index:= range res{
+	for index := range res {
 		res[index].CreateTime = res[index].CreateTimeDb.Format(util.TimeFormat)
 	}
 
@@ -94,7 +91,7 @@ func (this RealDataController) FailDataList(ctx *fiber.Ctx) error {
 
 	realDataService := realdata.RealDataService{}
 
-	res,err := realDataService.FailDataList(reqData.Minutes,reqData.Appid)
+	res, err := realDataService.FailDataList(reqData.Minutes, reqData.Appid)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -111,7 +108,7 @@ func (this RealDataController) FailDataDesc(ctx *fiber.Ctx) error {
 		Appid         int    `json:"appid"`
 		ErrorReason   string `json:"error_reason"`
 		ErrorHandling string `json:"error_handling"`
-		ReportType    string    `json:"report_type"`
+		ReportType    string `json:"report_type"`
 	}
 	var reqData ReqData
 
@@ -128,7 +125,7 @@ func (this RealDataController) FailDataDesc(ctx *fiber.Ctx) error {
 
 	realDataService := realdata.RealDataService{}
 
-	res,err := realDataService.FailDataDesc(appid,startTime,endTime,errorReason,errorHandling,reportType)
+	res, err := realDataService.FailDataDesc(appid, startTime, endTime, errorReason, errorHandling, reportType)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -152,18 +149,16 @@ func (this RealDataController) ReportCount(ctx *fiber.Ctx) error {
 
 	realDataService := realdata.RealDataService{}
 
-	res,err := realDataService.ReportCount(appid,startTime,endTime)
+	res, err := realDataService.ReportCount(appid, startTime, endTime)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
-
 
 	return this.Success(ctx, response.SearchSuccess, map[string]interface{}{"list": res})
 }
 
 //事件失败详情
 func (this RealDataController) EventFailDesc(ctx *fiber.Ctx) error {
-
 
 	var reqData request.EventFailDescReq
 	if err := ctx.BodyParser(&reqData); err != nil {
@@ -177,7 +172,7 @@ func (this RealDataController) EventFailDesc(ctx *fiber.Ctx) error {
 
 	realDataService := realdata.RealDataService{}
 
-	res,err := realDataService.EventFailDesc(appid,startTime,endTime,dataName)
+	res, err := realDataService.EventFailDesc(appid, startTime, endTime, dataName)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -205,7 +200,7 @@ func (this RealDataController) AddDebugDeviceID(ctx *fiber.Ctx) error {
 
 	debugData := debug_data.DebugData{}
 
-	err :=debugData.AddDebugDeviceID(appid,deviceID,remark,c.UserID)
+	err := debugData.AddDebugDeviceID(appid, deviceID, remark, c.UserID)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -230,7 +225,7 @@ func (this RealDataController) DelDebugDeviceID(ctx *fiber.Ctx) error {
 
 	debugData := debug_data.DebugData{}
 
-	err :=debugData.DelDebugDeviceID(appid,deviceID,c.UserID)
+	err := debugData.DelDebugDeviceID(appid, deviceID, c.UserID)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -252,7 +247,7 @@ func (this RealDataController) DebugDeviceIDList(ctx *fiber.Ctx) error {
 
 	debugData := debug_data.DebugData{}
 
-	res,err :=debugData.DebugDeviceIDList(appid,c.UserID)
+	res, err := debugData.DebugDeviceIDList(appid, c.UserID)
 
 	if err != nil {
 		return this.Error(ctx, err)

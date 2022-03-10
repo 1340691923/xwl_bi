@@ -73,7 +73,7 @@ func (this *RealTimeWarehousing) Flush() (err error) {
 			lostTime := time.Now().Sub(startNow).String()
 			len := len(this.buffer)
 			if len > 0 {
-				logs.Logger.Info("入库数据状态成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
+				logs.Logger.Info("入库实时数据成功", zap.String("所花时间", lostTime), zap.Int("数据长度为", len))
 			}
 		}
 		stmt.Close()

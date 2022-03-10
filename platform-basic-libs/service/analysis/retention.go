@@ -99,7 +99,7 @@ func (this *Retention) getSqlByDate(t time.Time) (SQL string, allArgs []interfac
 		sumArr[i] = fmt.Sprintf("sum(r[%s])", strconv.Itoa(i+3))
 		uiArr[i] = fmt.Sprintf("groupUniqArray(if(r[%s]=1,xwl_distinct_id,null))", strconv.Itoa(i+3))
 
-		retentionSql = retentionSql + ` xwl_part_event ='` + this.req.ZhibiaoArr[0].EventName + `' and  toYYYYMMDD(xwl_part_date) = '` + retentionPartDate.Format(util.TimeFormatDay) + `' `
+		retentionSql = retentionSql + ` xwl_part_event ='` + this.req.ZhibiaoArr[1].EventName + `' and  toYYYYMMDD(xwl_part_date) = '` + retentionPartDate.Format(util.TimeFormatDay) + `' `
 
 		if len(this.req.ZhibiaoArr[1].Relation.Filts) > 0 {
 			retentionSql = retentionSql + " and "

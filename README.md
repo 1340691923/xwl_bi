@@ -22,11 +22,13 @@
 
 > 相关
 
+ *[下载地址]( https://gitee.com/cynthia520/xwl_bi/releases/v1.0.0 ) 
+ 
+ *[文档地址]( https://www.yuque.com/jianghurenchenggolang/oehqme/hen7qy ) 
+
  *[用户端体验地址]( http://www.ycvod.net ) 
  
  *[后台体验地址]( http://110.42.167.155:8090/#/dashboard ) 用户名： test ,密码： test123456 （因本人穷，所以只是一台1核2g的服务器撑着，望同是开发人，手下留情）
 
  
- *[下载地址]( https://gitee.com/cynthia520/xwl_bi/releases/v1.0.0 ) 
- 
- *[文档地址]( https://www.yuque.com/jianghurenchenggolang/oehqme/hen7qy ) 
+

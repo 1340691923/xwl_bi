@@ -48,8 +48,8 @@ func (this *ReportData2CK) Flush() (err error) {
 
 	rowsMap := map[string][][]interface{}{}
 
-	for bufferIndex := range this.buffer {
-		for tableName := range this.buffer[bufferIndex] {
+	for _,obj := range this.buffer {
+		for tableName,data := range obj {
 			rowArr := []interface{}{}
 			rows := [][]interface{}{}
 			if _, haveKey := rowsMap[tableName]; haveKey {
@@ -59,7 +59,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			}
 			dims, _ := TableColumnMap.Load(tableName)
 			for _, dim := range dims.([]*model2.ColumnWithType) {
-				val := parser.GetValueByType(this.buffer[bufferIndex][tableName], dim)
+				val := parser.GetValueByType(data, dim)
 				rowArr = append(rowArr, val)
 			}
 
@@ -67,6 +67,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			rowsMap[tableName] = rows
 		}
 	}
+
 
 	bytesbuffer:=bytes.Buffer{}
 
@@ -107,6 +108,7 @@ func (this *ReportData2CK) Flush() (err error) {
 			}
 			defer stmt.Close()
 			haveFail := false
+
 			for _, row := range rowsMap[tableName.(string)] {
 
 				if _, err := stmt.Exec(row...); err != nil {

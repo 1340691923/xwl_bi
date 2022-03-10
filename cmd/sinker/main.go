@@ -104,9 +104,11 @@ func main() {
 
 	log.Println(fmt.Sprintf("sinker 服务启动成功,性能检测入口为: http://127.0.0.1:%v", model.GlobConfig.Sinker.PprofHttpPort))
 
-	realTimeWarehousing := consumer_data.NewRealTimeWarehousing(model.GlobConfig.Sinker.RealTimeWarehousing.BufferSize, model.GlobConfig.Sinker.RealTimeWarehousing.FlushInterval)
-	reportAcceptStatus := consumer_data.NewReportAcceptStatus(model.GlobConfig.Sinker.ReportAcceptStatus.BufferSize, model.GlobConfig.Sinker.ReportAcceptStatus.FlushInterval)
-	reportData2CK := consumer_data.NewReportData2CK(model.GlobConfig.Sinker.ReportData2CK.BufferSize, model.GlobConfig.Sinker.ReportData2CK.FlushInterval)
+	sinkerC := model.GlobConfig.Sinker
+
+	realTimeWarehousing := consumer_data.NewRealTimeWarehousing(sinkerC.RealTimeWarehousing)
+	reportAcceptStatus := consumer_data.NewReportAcceptStatus(sinkerC.ReportAcceptStatus)
+	reportData2CK := consumer_data.NewReportData2CK(sinkerC.ReportData2CK)
 
 	realTimeDataSarama := sinker.NewKafkaSarama()
 	reportData2CKSarama := realTimeDataSarama.Clone()
@@ -114,8 +116,11 @@ func main() {
 	go sinker.ClearDimsCacheByTime(time.Minute * 30)
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-	err = realTimeDataSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.RealTimeDataGroup, func(msg model.InputMessage, markFn func()) {
-
+	err = realTimeDataSarama.Init(
+		model.GlobConfig.Comm.Kafka,
+		model.GlobConfig.Comm.Kafka.ReportTopicName,
+		model.GlobConfig.Comm.Kafka.RealTimeDataGroup,
+		func(msg model.InputMessage, markFn func()) {
 		//ETL
 		var kafkaData model.KafkaData
 		err = json.Unmarshal(msg.Value, &kafkaData)
@@ -154,7 +159,11 @@ func main() {
 		panic(err)
 	}
 
-	err = reportData2CKSarama.Init(model.GlobConfig.Comm.Kafka, model.GlobConfig.Comm.Kafka.ReportTopicName, model.GlobConfig.Comm.Kafka.ReportData2CKGroup, func(msg model.InputMessage, markFn func()) {
+	err = reportData2CKSarama.Init(
+		model.GlobConfig.Comm.Kafka,
+		model.GlobConfig.Comm.Kafka.ReportTopicName,
+		model.GlobConfig.Comm.Kafka.ReportData2CKGroup,
+		func(msg model.InputMessage, markFn func()) {
 
 		var kafkaData model.KafkaData
 		err = json.Unmarshal(msg.Value, &kafkaData)

@@ -3,6 +3,7 @@ package consumer_data
 import (
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
+	"github.com/1340691923/xwl_bi/model"
 	"github.com/1340691923/xwl_bi/platform-basic-libs/util"
 	"go.uber.org/zap"
 	"sync"
@@ -23,16 +24,16 @@ type RealTimeWarehousing struct {
 	flushInterval int
 }
 
-func NewRealTimeWarehousing(batchSize, flushInterval int) *RealTimeWarehousing {
-	logs.Logger.Info("NewRealTimeWarehousing", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
+func NewRealTimeWarehousing(config model.BatchConfig) *RealTimeWarehousing {
+	logs.Logger.Info("NewRealTimeWarehousing", zap.Int("batchSize", config.BufferSize), zap.Int("flushInterval", config.FlushInterval))
 	realTimeWarehousing := &RealTimeWarehousing{
-		buffer:        make([]*RealTimeWarehousingData, 0, batchSize),
+		buffer:        make([]*RealTimeWarehousingData, 0, config.BufferSize),
 		bufferMutex:   new(sync.RWMutex),
-		batchSize:     batchSize,
-		flushInterval: flushInterval,
+		batchSize:     config.BufferSize,
+		flushInterval: config.FlushInterval,
 	}
 
-	if flushInterval > 0 {
+	if config.FlushInterval > 0 {
 		realTimeWarehousing.RegularFlushing()
 	}
 

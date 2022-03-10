@@ -3,6 +3,7 @@ package consumer_data
 import (
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
+	"github.com/1340691923/xwl_bi/model"
 	"go.uber.org/zap"
 	"sync"
 	"time"
@@ -32,16 +33,16 @@ const (
 	SuccessStatus = 1
 )
 
-func NewReportAcceptStatus(batchSize int, flushInterval int) *ReportAcceptStatus {
-	logs.Logger.Info("NewReportAcceptStatus", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
+func NewReportAcceptStatus(config model.BatchConfig) *ReportAcceptStatus {
+	logs.Logger.Info("NewReportAcceptStatus", zap.Int("batchSize", config.BufferSize), zap.Int("flushInterval", config.FlushInterval))
 	reportAcceptStatus := &ReportAcceptStatus{
-		buffer:        make([]*ReportAcceptStatusData, 0, batchSize),
+		buffer:        make([]*ReportAcceptStatusData, 0, config.BufferSize),
 		bufferMutex:   new(sync.RWMutex),
-		batchSize:     batchSize,
-		flushInterval: flushInterval,
+		batchSize:     config.BufferSize,
+		flushInterval: config.FlushInterval,
 	}
 
-	if flushInterval > 0 {
+	if config.FlushInterval > 0 {
 		reportAcceptStatus.RegularFlushing()
 	}
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/1340691923/xwl_bi/engine/db"
 	"github.com/1340691923/xwl_bi/engine/logs"
+	"github.com/1340691923/xwl_bi/model"
 	model2 "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/model"
 	parser "github.com/1340691923/xwl_bi/platform-basic-libs/sinker/parse"
 	"go.uber.org/zap"
@@ -21,15 +22,15 @@ type ReportData2CK struct {
 	flushInterval int
 }
 
-func NewReportData2CK(batchSize int, flushInterval int) *ReportData2CK {
-	logs.Logger.Info("NewReportData2CK", zap.Int("batchSize", batchSize), zap.Int("flushInterval", flushInterval))
+func NewReportData2CK(config model.BatchConfig) *ReportData2CK {
+	logs.Logger.Info("NewReportData2CK", zap.Int("batchSize", config.BufferSize), zap.Int("flushInterval", config.FlushInterval))
 	reportData2CK := &ReportData2CK{
-		buffer:        make([]map[string]*parser.FastjsonMetric, 0, batchSize),
+		buffer:        make([]map[string]*parser.FastjsonMetric, 0, config.BufferSize),
 		bufferMutex:   new(sync.RWMutex),
-		batchSize:     batchSize,
-		flushInterval: flushInterval,
+		batchSize:     config.BufferSize,
+		flushInterval: config.FlushInterval,
 	}
-	if flushInterval > 0 {
+	if config.FlushInterval > 0 {
 		reportData2CK.RegularFlushing()
 	}
 

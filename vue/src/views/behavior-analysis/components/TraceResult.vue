@@ -7,7 +7,7 @@
       >
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div class="echartBox_title">
-            <date v-if="dateShow" v-model="filterDate" @changeDate="filterDateCall" />
+            <date v-if="dateShow" v-model="filterDate" @changeDate="filterDateCall"/>
           </div>
 
         </div>
@@ -16,7 +16,7 @@
           <div v-if="showTable">
 
             <div v-if="tableData.length > 0">
-              <trace-sankey v-if="g2Show" :chart-data="traceChartsRes" />
+              <trace-sankey v-if="g2Show" :chart-data="traceChartsRes"/>
             </div>
 
           </div>
@@ -30,7 +30,7 @@
               </a-empty>
             </div>
             <div v-else style="margin-top: 20px">
-              <el-input v-model="input" class="filter-item" placeholder="输入关键字进行过滤" clearable style="width: 300px" />
+              <el-input v-model="input" class="filter-item" placeholder="输入关键字进行过滤" clearable style="width: 300px"/>
               <page-table
                 v-if="tableShow"
                 ref="pagetable"
@@ -40,12 +40,13 @@
                 :table-list="tableData"
                 :table-info="tableInfo"
               >
-                <el-table-column slot="operate" label="路径" align="center" sortable prop="trace" />
+                <el-table-column slot="operate" label="路径" align="center" sortable prop="trace"/>
 
                 <el-table-column slot="operate" label="人数" width="100" align="center" sortable prop="user_count">
                   <template slot-scope="scope">
-                    <a style="color: #6bb8ff" @click="drillDown(scope.row.ui)">&nbsp;&nbsp;&nbsp;&nbsp;{{ scope.row.user_count }}</a>
-                    <add-user-group :uid="scope.row.ui" />
+                    <a style="color: #6bb8ff" @click="drillDown(scope.row.ui)">&nbsp;&nbsp;&nbsp;&nbsp;{{
+                      scope.row.user_count }}</a>
+                    <add-user-group :uid="scope.row.ui"/>
                   </template>
                 </el-table-column>
 
@@ -67,148 +68,154 @@
 </template>
 
 <script>
-import { elTable2Excel } from '@/utils/download'
+  import {elTable2Excel} from '@/utils/download'
 
-export default {
-  name: 'RetentionResult',
-  components: {
-    'PageTable': () => import('@/components/PageTable'),
-    'Date': () => import('@/components/AnalyseTools/FilterDate/Date'),
-    'TraceSankey': () => import('@/components/Charts/TraceSankey'),
-    'AddUserGroup': () => import('@/views/behavior-analysis/components/AddUserGroup')
-  },
-  props: {
-    className: {
-      type: String,
-      default: 'charts'
+  export default {
+    name: 'RetentionResult',
+    components: {
+      'PageTable': () => import('@/components/PageTable'),
+      'Date': () => import('@/components/AnalyseTools/FilterDate/Date'),
+      'TraceSankey': () => import('@/components/Charts/TraceSankey'),
+      'AddUserGroup': () => import('@/views/behavior-analysis/components/AddUserGroup')
     },
-    emptyText: {
-      type: String,
-      default: '选择完分析条件后，请点击“计算”'
+    props: {
+      className: {
+        type: String,
+        default: 'charts'
+      },
+      emptyText: {
+        type: String,
+        default: '选择完分析条件后，请点击“计算”'
+      },
+      value: {
+        type: Array,
+        default: []
+      },
+      traceTableRes: {
+        type: Array,
+        default: []
+      },
+      traceChartsRes: {
+        type: Array,
+        default: []
+      },
+      showCharts: {
+        type: Boolean,
+        default: true
+      },
+      showTable: {
+        type: Boolean,
+        default: true
+      }
     },
-    value: {
-      type: Array,
-      default: []
+    data() {
+      return {
+        dateShow: true,
+        input: '',
+        tableHeaderShow: [],
+        groupDataShow: {},
+        g2Show: true,
+        tableShow: true,
+        filterDate: this.value,
+        tableInfo: [{slot: 'operate'}],
+        chartType: 1,
+        showList: [],
+        tableData: [],
+        chartData: [],
+        allUserNum: 0
+      }
     },
-    traceTableRes: {
-      type: Array,
-      default: []
-    },
-    traceChartsRes: {
-      type: Array,
-      default: []
-    },
-    showCharts: {
-      type: Boolean,
-      default: true
-    },
-    showTable: {
-      type: Boolean,
-      default: true
-    }
-  },
-  data() {
-    return {
-      dateShow: true,
-      input: '',
-      tableHeaderShow: [],
-      groupDataShow: {},
-      g2Show: true,
-      tableShow: true,
-      filterDate: this.value,
-      tableInfo: [{ slot: 'operate' }],
-      chartType: 1,
-      showList: [],
-      tableData: [],
-      chartData: [],
-      allUserNum: 0
-    }
-  },
-  computed: {},
-  watch: {
+    computed: {},
+    watch: {
 
-    value: {
-      deep: true,
-      handler() {
-        this.dateShow = false
-        this.$nextTick(() => {
-          this.dateShow = true
-        })
-      }
-    }
-  },
-  beforeMount() {
-    this.init()
-  },
-  methods: {
-    drillDown(ui) {
-      console.log('ui', ui)
-      this.$store.dispatch('baseData/SETUI', ui)
-      this.$router.push({ path: '/user-analysis/user_list' })
-    },
-    rewriteNodeName(event, num) {
-      return `${event}_${num}`
-    },
-    download(fName) {
-      elTable2Excel(this, 'pagetable', `智能路径分析:${fName}`)
-    },
-    refreshData() {
-      this.g2Show = false
-      this.tableShow = false
-      this.$nextTick(() => {
-        this.g2Show = true
-        this.tableShow = true
-      })
-    },
-    filterDateCall(date) {
-      this.filterDate = date
-      this.$emit('input', this.filterDate)
-      this.$emit('go')
-    },
-    initTableData() {
-      this.allUserNum = 0
-      for (const v of this.traceTableRes) {
-        this.allUserNum = this.allUserNum + v.user_count
-      }
-      this.tableData = this.traceTableRes
-    },
-    initChartData() {
-      this.chartData = []
-      if (this.traceChartsRes.length <= 0) {
-        return
-      }
-      const eventArr = []
-      const targetArr = []
-      const eventSet = new Map()
-      for (const k in this.traceChartsRes) {
-        const traceCharts = this.traceChartsRes[k]
-
-        eventSet.set(traceCharts['event'][0], 1)
-        eventSet.set(traceCharts['event'][1], 1)
-
-        targetArr.push({
-          source: traceCharts['event'][0],
-          target: traceCharts['event'][1],
-          value: traceCharts['sum_user_count']
-        })
-      }
-      eventSet.forEach((v, k, tmp) => {
-        const obj = {
-          name: k
+      value: {
+        deep: true,
+        handler() {
+          this.dateShow = false
+          this.$nextTick(() => {
+            this.dateShow = true
+          })
         }
-        eventArr.push(obj)
-      })
-      this.chartData.push(eventArr)
-      this.chartData.push(targetArr)
+      }
     },
-    init() {
-      this.initTableData()
-      this.initChartData()
-      this.refreshData()
-    }
-  }
+    beforeMount() {
+      this.init()
+    },
+    methods: {
+      drillDown(ui) {
+        console.log('ui', ui)
+        this.$store.dispatch('baseData/SETUI', ui)
+        this.$router.push({path: '/user-analysis/user_list'})
+      },
+      rewriteNodeName(event, num) {
+        return `${event}_${num}`
+      },
+      download(fName) {
+        elTable2Excel(this, 'pagetable', `智能路径分析:${fName}`)
+      },
+      refreshData() {
+        this.g2Show = false
+        this.tableShow = false
+        this.$nextTick(() => {
+          this.g2Show = true
+          this.tableShow = true
+        })
+      },
+      filterDateCall(date) {
+        this.filterDate = date
+        this.$emit('input', this.filterDate)
+        this.$emit('go')
+      },
+      initTableData() {
+        this.allUserNum = 0
+        for (const v of this.traceTableRes) {
+          this.allUserNum = this.allUserNum + v.user_count
+        }
+        this.tableData = this.traceTableRes
+      },
+      initChartData() {
+        this.chartData = []
+        if (this.traceChartsRes.length <= 0) {
+          return
+        }
+        const eventArr = []
+        const targetArr = []
+        const eventSet = new Map()
+        const source_target_map = {}
+        for (const k in this.traceChartsRes) {
+          const traceCharts = this.traceChartsRes[k]
 
-}
+
+
+          if (source_target_map.hasOwnProperty(`${traceCharts['event'][1]}_${traceCharts['event'][0]}`)) {
+            traceCharts['event'][1] = traceCharts['event'][1]+" "
+          }
+          eventSet.set(traceCharts['event'][0], 1)
+          eventSet.set(traceCharts['event'][1], 1)
+          source_target_map[`${traceCharts['event'][0]}_${traceCharts['event'][1]}`] = 1
+          targetArr.push({
+            source: traceCharts['event'][0],
+            target: traceCharts['event'][1],
+            value: traceCharts['sum_user_count']
+          })
+        }
+        eventSet.forEach((v, k, tmp) => {
+          const obj = {
+            name: k
+          }
+          eventArr.push(obj)
+        })
+        this.chartData.push(eventArr)
+        this.chartData.push(targetArr)
+      },
+      init() {
+        this.initTableData()
+        this.initChartData()
+        this.refreshData()
+      }
+    }
+
+  }
 </script>
 
 <style scoped src="@/styles/trace-res.css"/>

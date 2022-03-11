@@ -180,6 +180,7 @@ export default {
       const eventArr = []
       const targetArr = []
       const eventSet = new Map()
+
       for (const k in this.traceChartsRes) {
         const traceCharts = this.traceChartsRes[k]
 

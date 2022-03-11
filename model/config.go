@@ -89,7 +89,7 @@ type LogConfig struct {
 
 func (this *Config) GetCkQueryLimit() int {
 	if this.Manager.CkQueryLimit == 0 {
-		return 10
+		return 5
 	}
 	return this.Manager.CkQueryLimit
 }

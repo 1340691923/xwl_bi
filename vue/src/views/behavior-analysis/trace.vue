@@ -45,7 +45,7 @@
                 <div class="xwl_main">
                   <div>
                     <div class="row___xwl" style="padding: 10px;">
-                      <select2 v-model="form.eventNames" :options="eventOptions" :checkeds="false" placeholder="请选择事件名" />
+                      <select2 v-if="eventNameSelectShow" v-model="form.eventNames" :options="eventOptions" :checkeds="false" placeholder="请选择事件名" />
                     </div>
                   </div>
                 </div>
@@ -230,6 +230,7 @@ export default {
   },
   data() {
     return {
+      eventNameSelectShow:true,
       eventOptions: [],
       traceTableRes: [],
       traceChartsRes: [],
@@ -339,7 +340,13 @@ export default {
         this.currentReportTable.name = res.data.name
         this.currentReportTable.remark = res.data.remark
         this.form = JSON.parse(res.data.data)
+        this.eventNameSelectShow = false
+        this.$nextTick(() => {
+          this.eventNameSelectShow = true
+        })
+
         this.go()
+
       }
     },
 

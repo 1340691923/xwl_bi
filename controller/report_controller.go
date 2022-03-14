@@ -25,15 +25,6 @@ type ReportController struct {
 	BaseController
 }
 
-var parserPool *parser.Pool
-
-func init(){
-	var err error
-	parserPool,err = parser.NewParserPool("fastjson")
-	if err!=nil{
-		panic(err)
-	}
-}
 
 //上报接口
 func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
@@ -101,9 +92,10 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 
 	if reportService.IsDebugUser(debug, xwlDistinctId, tableId) {
 		kafkaData := duck.GetkafkaData()
-		pool := parserPool.Get()
-		defer parserPool.Put(pool)
-		metric, debugErr :=  pool.Parse(body)
+
+		pp := parser.FastjsonParser{}
+
+		metric, debugErr := pp.Parse(kafkaData.ReqData)
 
 		if debugErr != nil {
 			logs.Logger.Error("parser.ParseKafkaData ", zap.Error(err))

@@ -27,20 +27,22 @@ func JwtMiddleware(c *fiber.Ctx) error {
 	if util.GetToken(c) == "" {
 		err = my_error.NewBusiness(TOKEN_ERROR, INVALID_PARAMS)
 		return res.Error(c, err)
-	} else {
-
-		var service gm_user.GmUserService
-		claims, err = jwt.ParseToken(token)
-		if err != nil {
-			err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_FAIL)
-			return res.Error(c, err)
-		} else if time.Now().Unix() > claims.ExpiresAt {
-			err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_TIMEOUT)
-			return res.Error(c, err)
-		} else if !service.IsExitUser(claims) {
-			err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_TIMEOUT)
-			return res.Error(c, err)
-		}
 	}
+
+	var service gm_user.GmUserService
+	claims, err = jwt.ParseToken(token)
+	if err != nil {
+		err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_FAIL)
+		return res.Error(c, err)
+	}
+	if time.Now().Unix() > claims.ExpiresAt {
+		err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_TIMEOUT)
+		return res.Error(c, err)
+	}
+	if !service.IsExitUser(claims) {
+		err = my_error.NewBusiness(TOKEN_ERROR, ERROR_AUTH_CHECK_TOKEN_TIMEOUT)
+		return res.Error(c, err)
+	}
+
 	return c.Next()
 }

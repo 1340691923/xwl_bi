@@ -22,17 +22,19 @@ type CheckConfigStruct struct {
 func (this Request) CheckParameter(checkConfig []CheckConfigStruct, ctx *fiber.Ctx) (err error) {
 	method := strings.ToUpper(ctx.Method())
 	for _, config := range checkConfig {
-		if method == "GET" {
+		switch method {
+		case "GET":
 			if ctx.FormValue(config.Key) == "" {
 				err = my_error.NewBusiness(ErrorMap, config.Code)
 				return
 			}
-		} else if method == "POST" {
+		case "POST":
 			if !gjson.GetBytes(ctx.Body(), config.Key).Exists() {
 				err = my_error.NewBusiness(ErrorMap, config.Code)
 				return
 			}
 		}
+
 	}
 	return
 }

@@ -107,9 +107,8 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onl
 			if jsonErr == nil {
 				dimsCacheMap.Store(dimsCachekey,dims)
 				return dims,err
-			} else {
-				logs.Logger.Error("jsonErr", zap.Error(jsonErr))
 			}
+			logs.Logger.Error("jsonErr", zap.Error(jsonErr))
 		}else{
 			logs.Logger.Error("GzipUnCompressByte Err", zap.Error(err))
 		}

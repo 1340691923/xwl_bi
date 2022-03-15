@@ -51,9 +51,7 @@ func WechatSpider(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
 				"msg":  "该UserAgent禁止访问接口！",
 			})
 			return
-		} else {
-			handle(ctx)
 		}
-
+		handle(ctx)
 	}
 }

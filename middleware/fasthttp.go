@@ -35,7 +35,7 @@ func FTimer(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		startT := time.Now()
 		handle(ctx)
-		logs.Logger.Info("handle lost time",zap.String("time",time.Now().Sub(startT).String()))
+		logs.Logger.Info("handle lost time", zap.String("time", time.Now().Sub(startT).String()))
 	}
 }
 
@@ -44,7 +44,7 @@ func WechatSpider(handle fasthttp.RequestHandler) fasthttp.RequestHandler {
 
 		UserAgent := strings.ToLower(util.Bytes2str(ctx.Request.Header.UserAgent()))
 
-		if util.InstrArr(model.GlobConfig.Report.UserAgentBanList,UserAgent) {
+		if util.InstrArr(model.GlobConfig.Report.UserAgentBanList, UserAgent) {
 			logs.Logger.Error("WechatSpider", zap.String("该UserAgent禁止访问接口！", ctx.Request.Header.String()))
 			util.WriteJSON(ctx, map[string]interface{}{
 				"code": 500,

@@ -44,7 +44,7 @@ func main() {
 		Error()
 
 	if err != nil {
-		log.Println(fmt.Sprintf("初始化失败%s",err.Error()))
+		log.Println(fmt.Sprintf("初始化失败%s", err.Error()))
 		panic(err)
 	}
 

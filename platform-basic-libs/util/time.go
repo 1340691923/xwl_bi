@@ -7,7 +7,7 @@ const (
 	TimeFormatDay  = "20060102"
 	TimeFormatDay2 = "2006-01-02"
 	TimeFormatDay3 = "2006/01/02"
-	TimeFormatDay4  = "2006.01.02_15"
+	TimeFormatDay4 = "2006.01.02_15"
 )
 
 /**
@@ -24,7 +24,7 @@ func IsSameDay(oldDay, anotherDay int64) bool {
 }
 
 /**字符串->时间对象*/
-func Str2Time(formatTimeStr,timeFormat string) time.Time {
+func Str2Time(formatTimeStr, timeFormat string) time.Time {
 	loc, _ := time.LoadLocation("Local")
 	theTime, _ := time.ParseInLocation(timeFormat, formatTimeStr, loc) //使用模板在对应时区转化为time.time类型
 	return theTime

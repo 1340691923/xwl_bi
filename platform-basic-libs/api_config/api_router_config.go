@@ -55,10 +55,10 @@ func getHandlerName(v interface{}) (controller string, action string) {
 	str := runtime.FuncForPC(reflect.ValueOf(v).Pointer()).Name()
 	strArr := strings.Split(str, "-")
 	tmp := strings.Split(strArr[0], ".")
-	if len(tmp) == 4{
+	if len(tmp) == 4 {
 		return tmp[2], tmp[3]
-	}else{
-		return "",""
+	} else {
+		return "", ""
 	}
 }
 

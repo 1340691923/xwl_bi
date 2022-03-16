@@ -120,9 +120,7 @@ func (this ManagerUserController) LogoutAction(ctx *Ctx) error {
 //BI用户列表
 func (this ManagerUserController) UserListAction(ctx *Ctx) error {
 
-
-
-	appid := gjson.GetBytes(ctx.Body(),"appid").String()
+	appid := gjson.GetBytes(ctx.Body(), "appid").String()
 
 	var userModel model.GmUserModel
 	list, err := userModel.Select(appid)
@@ -166,7 +164,7 @@ func (this ManagerUserController) GetUserByIdAction(ctx *Ctx) error {
 	if err != nil {
 		return this.Error(ctx, err)
 	}
-	
+
 	var userModel model.GmUserModel
 	userModel.ID = reqData.Id
 	gmUser, err := userModel.GetUserById()
@@ -187,7 +185,7 @@ func (this ManagerUserController) UserUpdateAction(ctx *Ctx) error {
 		return this.Error(ctx, err)
 	}
 
-	if strings.TrimSpace(reqData.Password) == ""{
+	if strings.TrimSpace(reqData.Password) == "" {
 		return this.Error(ctx, errors.New("密码不能为空"))
 	}
 
@@ -247,7 +245,7 @@ func (this ManagerUserController) UserBanAction(ctx *Ctx) error {
 	id := reqData.Id
 	ban_typ := reqData.Typ
 
-	if id == 1 || id == 0  {
+	if id == 1 || id == 0 {
 		return this.Error(ctx, errors.New("您无权操作该用户!"))
 	}
 

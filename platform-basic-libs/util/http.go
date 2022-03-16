@@ -30,7 +30,6 @@ func CtxClientIP(ctx *fasthttp.RequestCtx) string {
 	return ctx.RemoteIP().String()
 }
 
-
 // PostJSON POST请求 BODY为JSON格式 ContentType=application/json
 func PostJSON(URL string, v interface{}) ([]byte, error) {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -48,11 +47,11 @@ func PostJSON(URL string, v interface{}) ([]byte, error) {
 }
 
 // WriteJSON 写入json字符串
-func WriteJSON(ctx *fasthttp.RequestCtx, v interface{}) (error) {
+func WriteJSON(ctx *fasthttp.RequestCtx, v interface{}) error {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	b, err := json.Marshal(v)
 	if err != nil {
-		return  err
+		return err
 	}
 	ctx.Response.Header.Add("Content-Type", "application/json")
 	ctx.Response.SetBody(b)
@@ -62,7 +61,6 @@ func WriteJSON(ctx *fasthttp.RequestCtx, v interface{}) (error) {
 var regIPv4 = regexp.MustCompile(
 	`^(((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))\.){3}((\d{1,2})|(1\d{1,2})|(2[0-4]\d)|(25[0-5]))$`,
 )
-
 
 func GetToken(ctx *Ctx) (token string) {
 	return ctx.Get("X-Token")

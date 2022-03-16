@@ -108,24 +108,24 @@ func (this *MetaDataService) GetEventNameShowMap() (mapStr string, err error) {
 	return buff.String(), err
 }
 
-func(this *MetaDataService)MetaEventList()(res []response.MetaEventListRes,err error){
+func (this *MetaDataService) MetaEventList() (res []response.MetaEventListRes, err error) {
 	if err := db.Sqlx.Select(&res, "select event_name,show_name,yesterday_count from meta_event where appid = ?", this.Appid); err != nil {
-		return res,err
+		return res, err
 	}
-	return res,err
+	return res, err
 }
 
-func(this *MetaDataService) MetaEventListByAttr(attr string)(res []response.MetaEventListRes,err error){
+func (this *MetaDataService) MetaEventListByAttr(attr string) (res []response.MetaEventListRes, err error) {
 
 	eventNameList := []string{}
 
 	if err := db.Sqlx.Select(&eventNameList, "select event_name from meta_attr_relation where app_id = ? and event_attr = ? ", this.Appid, attr); err != nil {
-		return res,err
+		return res, err
 	}
 
 	var resTmp []response.MetaEventListRes
 	if err := db.Sqlx.Select(&resTmp, "select event_name,show_name,yesterday_count from meta_event where appid = ?", this.Appid); err != nil {
-		return res,err
+		return res, err
 	}
 
 	for _, v := range resTmp {
@@ -133,12 +133,12 @@ func(this *MetaDataService) MetaEventListByAttr(attr string)(res []response.Meta
 			res = append(res, v)
 		}
 	}
-	return res,err
+	return res, err
 }
 
-func(this *MetaDataService)AttrManager(typ int)(res []response.AttributeRes,err error){
+func (this *MetaDataService) AttrManager(typ int) (res []response.AttributeRes, err error) {
 	if err := db.Sqlx.Select(&res, "select attribute_name,show_name,data_type,attribute_type,status from attribute where app_id = ? and attribute_source =?", this.Appid, typ); err != nil {
-		return res,err
+		return res, err
 	}
 	for k, v := range res {
 		if _, ok := parser.TypeRemarkMap[v.DataType]; ok {
@@ -149,10 +149,10 @@ func(this *MetaDataService)AttrManager(typ int)(res []response.AttributeRes,err 
 			res[k].AttributeType = 1
 		}
 	}
-	return res,err
+	return res, err
 }
 
-func(this *MetaDataService) UpdateAttrInvisible(reqData request.UpdateAttrInvisibleReq)(err error){
+func (this *MetaDataService) UpdateAttrInvisible(reqData request.UpdateAttrInvisibleReq) (err error) {
 	appid := reqData.Appid
 	attributeSource := reqData.AttributeSource
 	attributeName := reqData.AttributeName
@@ -164,21 +164,21 @@ func(this *MetaDataService) UpdateAttrInvisible(reqData request.UpdateAttrInvisi
 	return nil
 }
 
-func(this *MetaDataService) AttrManagerByMeta(reqData request.AttrManagerByMetaReq) (res []response.AttributeRes,err error) {
+func (this *MetaDataService) AttrManagerByMeta(reqData request.AttrManagerByMetaReq) (res []response.AttributeRes, err error) {
 	appid := reqData.Appid
-	typ :=reqData.Typ
+	typ := reqData.Typ
 
 	eventName := reqData.EventName
 	eventAttrList := []string{}
 
 	if err := db.Sqlx.Select(&eventAttrList, "select event_attr from meta_attr_relation where  app_id = ? and event_name = ? ", appid, eventName); err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	var resTmp []response.AttributeRes
 
 	if err := db.Sqlx.Select(&resTmp, "select attribute_name,show_name,data_type,attribute_type from attribute where app_id = ? and attribute_source =?", appid, typ); err != nil {
-		return  nil,err
+		return nil, err
 	}
 
 	for k, v := range resTmp {
@@ -193,10 +193,10 @@ func(this *MetaDataService) AttrManagerByMeta(reqData request.AttrManagerByMetaR
 			res = append(res, resTmp[k])
 		}
 	}
-	return res,err
+	return res, err
 }
 
-func(this *MetaDataService)UpdateAttrShowName(reqData request.UpdateAttrShowNameReq)(err error){
+func (this *MetaDataService) UpdateAttrShowName(reqData request.UpdateAttrShowNameReq) (err error) {
 	appid := reqData.Appid
 	attributeName := reqData.AttributeName
 	attributeSource := reqData.Typ
@@ -207,7 +207,7 @@ func(this *MetaDataService)UpdateAttrShowName(reqData request.UpdateAttrShowName
 	return nil
 }
 
-func(this *MetaDataService)UpdateEventShowName(reqData request.UpdateShowNameReq)(err error){
+func (this *MetaDataService) UpdateEventShowName(reqData request.UpdateShowNameReq) (err error) {
 	appid := reqData.Appid
 	eventName := reqData.EventName
 	showName := reqData.ShowName
@@ -217,20 +217,20 @@ func(this *MetaDataService)UpdateEventShowName(reqData request.UpdateShowNameReq
 	return nil
 }
 
-func(this *MetaDataService)GetCalcuSymbolData(reqData request.GetCalcuSymbolDataReq)(res []response.AttributeRes,err error){
+func (this *MetaDataService) GetCalcuSymbolData(reqData request.GetCalcuSymbolDataReq) (res []response.AttributeRes, err error) {
 	appid := reqData.Appid
 	eventName := reqData.EventName
 
 	eventAttrList := []string{}
 
 	if err := db.Sqlx.Select(&eventAttrList, "select event_attr from meta_attr_relation where app_id = ? and event_name = ?  ", appid, eventName); err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	var resTmp []response.AttributeRes
 
 	if err := db.Sqlx.Select(&resTmp, "select attribute_name,show_name,data_type,attribute_type from attribute where app_id = ? and (status = 1 or attribute_type = 1)  and attribute_source =2", appid); err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	for k, v := range resTmp {
@@ -246,7 +246,7 @@ func(this *MetaDataService)GetCalcuSymbolData(reqData request.GetCalcuSymbolData
 		}
 	}
 
-	return res,nil
+	return res, nil
 
 }
 
@@ -259,7 +259,7 @@ type EventNameAndTheAttr struct {
 	AttributeType string `json:"attribute_type" db:"attribute_type"`
 }
 
-func(this *MetaDataService) GetAnalyseSelectOptions(appid int)(eventNameAndTheAttrList []EventNameAndTheAttr,err error){
+func (this *MetaDataService) GetAnalyseSelectOptions(appid int) (eventNameAndTheAttrList []EventNameAndTheAttr, err error) {
 
 	getEventNameAndTheAttrSql := `
 SELECT e.show_name as event_name_desc,
@@ -282,4 +282,3 @@ FROM
 	}
 	return
 }
-

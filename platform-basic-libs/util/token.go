@@ -1,15 +1,15 @@
 package util
 
 import (
+	"github.com/sony/sonyflake"
 	"log"
 	"strconv"
 	"sync"
-	"github.com/sony/sonyflake"
 )
 
 var TokenBucket sync.Map
 
-func GetUUid()string{
+func GetUUid() string {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
 	id, err := flake.NextID()
 	if err != nil {

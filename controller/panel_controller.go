@@ -25,7 +25,7 @@ func (this PanelController) ReportTableList(ctx *fiber.Ctx) error {
 	c, _ := jwt.ParseToken(this.GetToken(ctx))
 
 	pannelService := pannel.PannelService{}
-	list,err := pannelService.ReportTableList(req.Appid,req.RtType, c.UserID)
+	list, err := pannelService.ReportTableList(req.Appid, req.RtType, c.UserID)
 	if err != nil {
 		return this.Error(ctx, err)
 	}

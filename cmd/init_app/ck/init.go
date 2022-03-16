@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-
 //初始化clickhouse 表数据
 func Init() {
 	var err error

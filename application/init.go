@@ -233,7 +233,7 @@ func InitDebugSarama() (fn func(), err error) {
 
 func RefreshTableId() (fn func(), err error) {
 	fn = func() {
-		go report.RefreshTableIdMap(5*time.Minute)
+		go report.RefreshTableIdMap(5 * time.Minute)
 	}
 	return
 }

@@ -124,7 +124,7 @@ func getExpr(columnName, comparator string, ftv interface{}) squirrel.Sqlizer {
 		return squirrel.Expr(fmt.Sprintf(" ( %v >= ? and %v <= ? ) ", columnName, columnName), ftv.([]interface{})[0], ftv.([]interface{})[1])
 	}
 	if util.InstrArr(rangeTimeSymbolArr, comparator) {
-		if len(ftv.([]interface{})) != 2{
+		if len(ftv.([]interface{})) != 2 {
 			return squirrel.Expr(" 1 = 1 ")
 		}
 		return squirrel.Expr(fmt.Sprintf(" ( %v >= toDateTime(?) and %v <= toDateTime(?) ) ", columnName, columnName), ftv.([]interface{})[0], ftv.([]interface{})[1])

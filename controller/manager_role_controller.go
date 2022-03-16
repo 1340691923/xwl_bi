@@ -27,7 +27,7 @@ func (this ManagerRoleController) RolesAction(ctx *Ctx) error {
 		return this.Error(ctx, err)
 	}
 	list, err := service.GetRoles(roles)
-	
+
 	if err != nil {
 		return this.Error(ctx, err)
 	}

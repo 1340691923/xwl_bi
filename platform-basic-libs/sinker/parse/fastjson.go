@@ -21,7 +21,7 @@ func (p *FastjsonParser) Parse(bs []byte) (metric *FastjsonMetric, err error) {
 		err = errors.Wrapf(err, "")
 		return
 	}
-	metric = &FastjsonMetric{ value: value}
+	metric = &FastjsonMetric{value: value}
 	return
 }
 
@@ -112,7 +112,6 @@ func (c *FastjsonMetric) GetDateTime(key string, nullable bool) (val interface{}
 	}
 	return
 }
-
 
 func (c *FastjsonMetric) ParseDateTime(val string) (t time.Time, err error) {
 

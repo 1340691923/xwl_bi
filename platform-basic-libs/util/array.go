@@ -79,7 +79,6 @@ func Str2bytes(s string) (b []byte) {
 	return b
 }
 
-
 // SplitInt 分割字符串并转为INT
 func SplitInt(s, sep string) ([]int, error) {
 	var tmpStr = strings.Split(s, sep)

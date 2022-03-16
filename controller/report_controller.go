@@ -19,12 +19,9 @@ import (
 	"time"
 )
 
-
-
 type ReportController struct {
 	BaseController
 }
-
 
 //上报接口
 func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
@@ -41,12 +38,12 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 		eventName = ctx.UserValue("eventName").(string)
 		body      = ctx.Request.Body()
 	)
-	if strings.TrimSpace(eventName) == ""{
+	if strings.TrimSpace(eventName) == "" {
 		this.FastError(ctx, errors.New("事件名 不能为空"))
 		return
 	}
 
-	if strings.TrimSpace(appid) == ""{
+	if strings.TrimSpace(appid) == "" {
 		this.FastError(ctx, errors.New("appid 不能为空"))
 		return
 	}
@@ -65,7 +62,6 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 		this.FastError(ctx, err)
 		return
 	}
-
 
 	defer duck.Put()
 
@@ -87,7 +83,6 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 		xwlPartDate = time.Now().Format(util.TimeFormat)
 	}
 
-
 	duck.NewReportType(appid, tableId, debug, xwlPartDate, eventName, xwlIp, ctx.PostBody())
 
 	if reportService.IsDebugUser(debug, xwlDistinctId, tableId) {
@@ -103,7 +98,7 @@ func (this ReportController) ReportAction(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx,true)
+		dims, err := sinker.GetDims(model.GlobConfig.Comm.ClickHouse.DbName, kafkaData.GetTableName(), []string{}, db.ClickHouseSqlx, true)
 		if err != nil {
 			logs.Logger.Error("sinker.GetDims", zap.Error(err))
 			this.FastError(ctx, errors.New("服务异常"))

@@ -9,10 +9,9 @@ import (
 )
 
 type GmOperaterLogService struct {
-
 }
 
-func(this *GmOperaterLogService)List(reqData request.GmOperaterLogList)(list []model.GmOperaterLog,count int,err error){
+func (this *GmOperaterLogService) List(reqData request.GmOperaterLogList) (list []model.GmOperaterLog, count int, err error) {
 	if reqData.Page <= 0 {
 		reqData.Page = 1
 	}

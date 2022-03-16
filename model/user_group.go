@@ -18,7 +18,7 @@ type UserGroup struct {
 	UpdateTime   string   `db:"update_time" json:"update_time"`
 }
 
-func (this *UserGroup) Insert(managerUid int32, appid int,userCount int,userList []byte)(err error) {
+func (this *UserGroup) Insert(managerUid int32, appid int, userCount int, userList []byte) (err error) {
 	_, err = db.SqlBuilder.Insert("user_group").SetMap(map[string]interface{}{
 		"group_name":   this.GroupName,
 		"group_remark": this.GroupRemark,
@@ -36,8 +36,7 @@ func (this *UserGroup) Insert(managerUid int32, appid int,userCount int,userList
 	return nil
 }
 
-
-func (this *UserGroup) ModifyUserGroup(managerUid int32, appid int)(err error) {
+func (this *UserGroup) ModifyUserGroup(managerUid int32, appid int) (err error) {
 	_, err = db.SqlBuilder.
 		Update("user_group").
 		SetMap(map[string]interface{}{
@@ -75,13 +74,13 @@ func (this *UserGroup) List(managerUid int32, appid int) (list []UserGroup, err 
 		Where(db.Eq{"create_by": managerUid, "appid": appid}).
 		ToSql()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if err := db.Sqlx.Select(&list, SQL, args...); err != nil {
-		return nil,err
+		return nil, err
 	}
-	return list,err
+	return list, err
 }
 
 func (this *UserGroup) GetSelectOptions(managerUid int32, appid int) (list []UserGroup, err error) {
@@ -98,8 +97,8 @@ func (this *UserGroup) GetSelectOptions(managerUid int32, appid int) (list []Use
 		return
 	}
 
-	 err = db.Sqlx.Select(&list, SQL, args...)
-	 if err != nil {
+	err = db.Sqlx.Select(&list, SQL, args...)
+	if err != nil {
 		return
 	}
 

@@ -26,9 +26,9 @@ type Parser interface {
 
 // Pool may be used for pooling Parsers for similarly typed JSONs.
 type Pool struct {
-	name         string
-	timeZone     *time.Location
-	pool         sync.Pool
+	name     string
+	timeZone *time.Location
+	pool     sync.Pool
 }
 
 // NewParserPool creates a parser pool
@@ -89,7 +89,7 @@ func parseInLocation(val string, loc *time.Location) (t time.Time, err error) {
 		return
 	}
 
-	return t,err
+	return t, err
 }
 
 func UnixFloat(sec float64) (t time.Time) {

@@ -51,7 +51,7 @@ func (this GmRoleService) Delete(id int) (err error) {
 	return
 }
 
-func(this GmRoleService) GetRoles(roles []model.GmRoleModel)(list []request.GmRoleModel,err error){
+func (this GmRoleService) GetRoles(roles []model.GmRoleModel) (list []request.GmRoleModel, err error) {
 	for _, v := range roles {
 		roleRes := request.GmRoleModel{
 			ID:          v.ID,

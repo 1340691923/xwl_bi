@@ -41,9 +41,9 @@ func GetDimsCachekey(database, table string) string {
 
 var dimsCacheMap sync.Map
 
-func ClearDimsCacheByTime(clearTime time.Duration){
+func ClearDimsCacheByTime(clearTime time.Duration) {
 
-	for{
+	for {
 		time.Sleep(clearTime)
 		dimsCacheMap.Range(func(key, value interface{}) bool {
 			ClearDimsCacheByRedis(key.(string))
@@ -54,9 +54,9 @@ func ClearDimsCacheByTime(clearTime time.Duration){
 	}
 }
 
-func ClearDimsCacheByTimeBylocal(clearTime time.Duration){
+func ClearDimsCacheByTimeBylocal(clearTime time.Duration) {
 
-	for{
+	for {
 		time.Sleep(clearTime)
 		dimsCacheMap.Range(func(key, value interface{}) bool {
 			ClearDimsCacheByRedis(key.(string))
@@ -67,30 +67,30 @@ func ClearDimsCacheByTimeBylocal(clearTime time.Duration){
 	}
 }
 
-func ClearDimsCacheByRedis(key string){
+func ClearDimsCacheByRedis(key string) {
 	redisConn := db.RedisPool.Get()
 	defer redisConn.Close()
 
 	_, err := redisConn.Do("unlink", key)
 	if err != nil {
-		_,err = redisConn.Do("del", key)
-		if err!=nil{
+		_, err = redisConn.Do("del", key)
+		if err != nil {
 			logs.Logger.Error("err", zap.Error(err))
 		}
 	}
 }
 
-func ClearDimsCacheByKey(key string){
+func ClearDimsCacheByKey(key string) {
 	dimsCacheMap.Delete(key)
 }
 
-func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onlyRedis bool) (dims []*model2.ColumnWithType, err error) {
+func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB, onlyRedis bool) (dims []*model2.ColumnWithType, err error) {
 
 	dimsCachekey := GetDimsCachekey(database, table)
-	if !onlyRedis{
-		cache,load := dimsCacheMap.Load(dimsCachekey)
+	if !onlyRedis {
+		cache, load := dimsCacheMap.Load(dimsCachekey)
 		if load {
-			return cache.([]*model2.ColumnWithType),nil
+			return cache.([]*model2.ColumnWithType), nil
 		}
 	}
 
@@ -101,15 +101,15 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onl
 	dimsBytes, redisErr := redis.Bytes(redisConn.Do("get", dimsCachekey))
 
 	if redisErr == nil && len(dimsBytes) != 0 {
-		dimsCache,err:=util.GzipUnCompressByte(dimsBytes)
-		if err==nil{
+		dimsCache, err := util.GzipUnCompressByte(dimsBytes)
+		if err == nil {
 			jsonErr := json.Unmarshal(dimsCache, &dims)
 			if jsonErr == nil {
-				dimsCacheMap.Store(dimsCachekey,dims)
-				return dims,err
+				dimsCacheMap.Store(dimsCachekey, dims)
+				return dims, err
 			}
 			logs.Logger.Error("jsonErr", zap.Error(jsonErr))
-		}else{
+		} else {
 			logs.Logger.Error("GzipUnCompressByte Err", zap.Error(err))
 		}
 
@@ -120,7 +120,7 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onl
 	var rs *sql.Rows
 	if rs, err = conn.Query(fmt.Sprintf(selectSQLTemplate, database, table)); err != nil {
 		err = errors.Wrapf(err, "")
-		return dims,err
+		return dims, err
 	}
 	defer rs.Close()
 
@@ -128,7 +128,7 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onl
 	for rs.Next() {
 		if err = rs.Scan(&name, &typ, &defaultKind); err != nil {
 			err = errors.Wrapf(err, "")
-			return dims,err
+			return dims, err
 		}
 		typ = lowCardinalityRegexp.ReplaceAllString(typ, "$1")
 		if !util.InstrArr(excludedColumns, name) && defaultKind != "MATERIALIZED" {
@@ -138,18 +138,18 @@ func GetDims(database, table string, excludedColumns []string, conn *sqlx.DB,onl
 	}
 	if len(dims) == 0 {
 		err = errors.Wrapf(ErrTblNotExist, "%s.%s", database, table)
-		return dims,err
+		return dims, err
 	}
-	dimsCacheMap.Store(dimsCachekey,dims)
+	dimsCacheMap.Store(dimsCachekey, dims)
 
 	res, _ := json.Marshal(dims)
-	s,err:=util.GzipCompressByte(res)
-	if err!=nil{
-		return dims,err
+	s, err := util.GzipCompressByte(res)
+	if err != nil {
+		return dims, err
 	}
 	_, err = redisConn.Do("SETEX", dimsCachekey, 60*60*6, s)
 
-	return dims,err
+	return dims, err
 }
 
 func GetSourceName(name string) (sourcename string) {

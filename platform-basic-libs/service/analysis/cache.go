@@ -21,7 +21,7 @@ func ClearCacheByAppid(key string) (err error) {
 	defer conn.Close()
 	_, err = conn.Do("unlink", key)
 	if err != nil {
-		_,err = conn.Do("del", key)
+		_, err = conn.Do("del", key)
 		if err != nil {
 			logs.Logger.Error("err", zap.Error(err))
 		}

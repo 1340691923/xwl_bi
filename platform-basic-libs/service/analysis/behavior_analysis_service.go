@@ -14,20 +14,19 @@ import (
 )
 
 type BehaviorAnalysisService struct {
-
 }
 
-func(this *BehaviorAnalysisService)GetConfigs(appid int)(eventNameList []response.MetaEventListRes,attributeMap  map[int][]response.AttributeRes,err error){
+func (this *BehaviorAnalysisService) GetConfigs(appid int) (eventNameList []response.MetaEventListRes, attributeMap map[int][]response.AttributeRes, err error) {
 
 	attributeMap = map[int][]response.AttributeRes{}
 
 	if err := db.Sqlx.Select(&eventNameList, "select event_name,show_name from meta_event where appid = ?", appid); err != nil {
-		return eventNameList,attributeMap,err
+		return eventNameList, attributeMap, err
 	}
 
 	var attributeRes []response.AttributeRes
 	if err := db.Sqlx.Select(&attributeRes, "select attribute_name,show_name,data_type,attribute_type,attribute_source from attribute where app_id = ? and (status = 1 or attribute_type = 1) and attribute_name not in ('xwl_part_date','xwl_kafka_offset','xwl_part_event')  order by attribute_type asc", appid); err != nil {
-		return eventNameList,attributeMap,err
+		return eventNameList, attributeMap, err
 	}
 
 	for k, v := range attributeRes {
@@ -54,7 +53,7 @@ type AttributeName struct {
 	Analysis      map[string]string `json:"analysis" db:"-"`
 }
 
-func(this *BehaviorAnalysisService) LoadPropQuotas(reqData request.LoadPropQuotasReq)(attributeNameList  []AttributeName,err error){
+func (this *BehaviorAnalysisService) LoadPropQuotas(reqData request.LoadPropQuotasReq) (attributeNameList []AttributeName, err error) {
 
 	if err := db.Sqlx.Select(&attributeNameList,
 		"select attribute_name,show_name,data_type from attribute "+
@@ -65,7 +64,7 @@ func(this *BehaviorAnalysisService) LoadPropQuotas(reqData request.LoadPropQuota
 		reqData.Appid,
 		reqData.EventName,
 	); err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	for index, v := range attributeNameList {
@@ -85,21 +84,21 @@ func(this *BehaviorAnalysisService) LoadPropQuotas(reqData request.LoadPropQuota
 			attributeNameList[index].Analysis = utils.StringPropQuotas
 		}
 	}
-	return attributeNameList,nil
+	return attributeNameList, nil
 }
 
 type ValueStruct struct {
 	Value interface{} `json:"value" db:"value"`
 }
 
-func(this *BehaviorAnalysisService) GetValues(appid string,table string,col string,reqData []byte)(values []ValueStruct,err error){
+func (this *BehaviorAnalysisService) GetValues(appid string, table string, col string, reqData []byte) (values []ValueStruct, err error) {
 
 	cache := NewCache(time.Minute*2, fmt.Sprintf("%s_%s_%s_%s", "GetValues", appid, table, col), reqData)
 
 	resData, redisErr := cache.LoadData()
 
 	if util.FilterRedisNilErr(redisErr) {
-		return values,err
+		return values, err
 	}
 	if len(resData) > 0 {
 		var json = jsoniter.ConfigCompatibleWithStandardLibrary
@@ -107,10 +106,10 @@ func(this *BehaviorAnalysisService) GetValues(appid string,table string,col stri
 		err := json.Unmarshal(resData, &values)
 
 		if err != nil {
-			return  values,err
+			return values, err
 		}
 
-		return values,err
+		return values, err
 	}
 
 	tableName := ""
@@ -125,7 +124,7 @@ func(this *BehaviorAnalysisService) GetValues(appid string,table string,col stri
 
 	err = db.ClickHouseSqlx.Select(&values, SQL)
 	if err != nil {
-		return values,err
+		return values, err
 	}
 
 	for index, v := range values {
@@ -139,9 +138,9 @@ func(this *BehaviorAnalysisService) GetValues(appid string,table string,col stri
 
 	resB, err := json.Marshal(values)
 	if err != nil {
-		return values,err
+		return values, err
 	}
 	cache.SetData(resB)
 
-	return values,err
+	return values, err
 }

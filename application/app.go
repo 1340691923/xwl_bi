@@ -27,10 +27,10 @@ type App struct {
 	configFileName,
 	configFileExt,
 	appName string
-	cmdName             string
-	InitFnObservers     []InitFnObserver
-	err                 error
-	deferFuncs          []func()
+	cmdName         string
+	InitFnObservers []InitFnObserver
+	err             error
+	deferFuncs      []func()
 }
 
 // 设置配置文件格式   例如:json,conf 等等
@@ -138,7 +138,7 @@ func (this *App) Error() (err error) {
 	return this.err
 }
 
-func(this *App) RunManager() {
+func (this *App) RunManager() {
 	appServer := router.Init()
 
 	go func() {
@@ -149,11 +149,11 @@ func(this *App) RunManager() {
 	}()
 }
 
-func(this *App) WaitForExitSign(exitFunc ...func()) {
+func (this *App) WaitForExitSign(exitFunc ...func()) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	<-c
-	for index := range exitFunc{
+	for index := range exitFunc {
 		exitFunc[index]()
 	}
 }

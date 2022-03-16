@@ -11,9 +11,9 @@ import (
 )
 
 type RealTimeWarehousingData struct {
-	Appid           int64
-	EventName       string
-	CreateTime     string
+	Appid      int64
+	EventName  string
+	CreateTime string
 	Data       []byte
 }
 

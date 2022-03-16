@@ -100,13 +100,12 @@ func main() {
 		middleware.Cors(
 			middleware.WechatSpider(
 				controller.ReportController{}.ReportAction,
-				),
+			),
 		),
 	)
 
 	server := &fasthttp.Server{
-		Handler:            router.Handler,
-
+		Handler: router.Handler,
 	}
 	if model.GlobConfig.Report.ReadTimeout != 0 {
 		server.ReadTimeout = time.Duration(model.GlobConfig.Report.ReadTimeout) * time.Second

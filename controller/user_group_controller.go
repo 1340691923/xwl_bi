@@ -34,7 +34,7 @@ func (this UserGroupController) AddUserGroup(ctx *fiber.Ctx) error {
 		Appid:     addUserGroup.Appid,
 	}
 
-	err := userGroupService.AddUserGroup(len(addUserGroup.Ids),addUserGroup.Ids,addUserGroup.Remark,addUserGroup.Name)
+	err := userGroupService.AddUserGroup(len(addUserGroup.Ids), addUserGroup.Ids, addUserGroup.Remark, addUserGroup.Name)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -64,7 +64,7 @@ func (this UserGroupController) ModifyUserGroup(ctx *fiber.Ctx) error {
 		Appid:     modifyUserGroup.Appid,
 	}
 
-	err := userGroupService.ModifyUserGroup(modifyUserGroup.Id, modifyUserGroup.Remark,modifyUserGroup.Name)
+	err := userGroupService.ModifyUserGroup(modifyUserGroup.Id, modifyUserGroup.Remark, modifyUserGroup.Name)
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -95,7 +95,6 @@ func (this UserGroupController) DeleteUserGroup(ctx *fiber.Ctx) error {
 		return this.Error(ctx, err)
 	}
 
-
 	return this.Success(ctx, response.OperateSuccess, nil)
 }
 
@@ -113,7 +112,7 @@ func (this UserGroupController) UserGroupList(ctx *fiber.Ctx) error {
 		Appid:     userGroupList.Appid,
 	}
 
-	list,err := userGroupService.UserGroupList()
+	list, err := userGroupService.UserGroupList()
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -136,7 +135,7 @@ func (this UserGroupController) UserGroupSelect(ctx *fiber.Ctx) error {
 		Appid:     userGroupList.Appid,
 	}
 
-	list,err := userGroupService.Options()
+	list, err := userGroupService.Options()
 
 	if err != nil {
 		return this.Error(ctx, err)

@@ -19,7 +19,6 @@ type DimMetrics struct {
 	Fields []*ColumnWithType
 }
 
-
 type ColumnWithType struct {
 	Name       string
 	Type       int

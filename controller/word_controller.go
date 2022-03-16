@@ -42,7 +42,7 @@ type Word struct {
 func GetWordParse(ctx *fasthttp.RequestCtx) {
 
 	if string(ctx.FormValue("word")) == "" {
-		util.WriteJSON(ctx,map[string]interface{}{
+		util.WriteJSON(ctx, map[string]interface{}{
 			"code": 500,
 			"msg":  "请点击有效单词",
 		})
@@ -261,9 +261,9 @@ func GetWordParse(ctx *fasthttp.RequestCtx) {
 		}
 	})
 
-	util.WriteJSON(ctx,map[string]interface{}{
-		"code":0,
-		"msg":"ok",
-		"data":word,
+	util.WriteJSON(ctx, map[string]interface{}{
+		"code": 0,
+		"msg":  "ok",
+		"data": word,
 	})
 }

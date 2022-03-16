@@ -15,7 +15,7 @@ func FilterMysqlNilErr(err error) bool {
 }
 
 func IsMysqlRepeatError(err error) bool {
-	if err != nil && strings.Contains(err.Error(), "Error 1062")  {
+	if err != nil && strings.Contains(err.Error(), "Error 1062") {
 		return true
 	}
 	return false

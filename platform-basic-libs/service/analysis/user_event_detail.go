@@ -85,9 +85,9 @@ func (this *UserEventDetail) GetList() (interface{}, error) {
 
 	resList := []map[string][]map[string]interface{}{}
 
-	for index:= range tmp{
+	for index := range tmp {
 		val := res[tmp[index]]
-		m := map[string][]map[string]interface{}{tmp[index]:val}
+		m := map[string][]map[string]interface{}{tmp[index]: val}
 		resList = append(resList, m)
 	}
 

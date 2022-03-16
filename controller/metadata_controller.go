@@ -33,7 +33,7 @@ func (this MetaDataController) MetaEventList(ctx *fiber.Ctx) error {
 	if err := metaData.UpdateYesterdayCount(); err != nil {
 		return this.Error(ctx, err)
 	}
-	res,err := metaData.MetaEventList()
+	res, err := metaData.MetaEventList()
 	if err != nil {
 		return this.Error(ctx, err)
 	}
@@ -59,7 +59,7 @@ func (this MetaDataController) MetaEventListByAttr(ctx *fiber.Ctx) error {
 
 	metaData := meta_data.MetaDataService{Appid: appid}
 
-	res,err := metaData.MetaEventListByAttr(attr)
+	res, err := metaData.MetaEventListByAttr(attr)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -82,7 +82,7 @@ func (this MetaDataController) AttrManager(ctx *fiber.Ctx) error {
 
 	metaData := meta_data.MetaDataService{Appid: strconv.Itoa(appid)}
 
-	res,err := metaData.AttrManager(typ)
+	res, err := metaData.AttrManager(typ)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -126,7 +126,7 @@ func (this MetaDataController) AttrManagerByMeta(ctx *fiber.Ctx) error {
 
 	metaData := meta_data.MetaDataService{Appid: strconv.Itoa(reqData.Appid)}
 
-	res,err := metaData.AttrManagerByMeta(reqData)
+	res, err := metaData.AttrManagerByMeta(reqData)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -185,7 +185,7 @@ func (this MetaDataController) GetCalcuSymbolData(ctx *fiber.Ctx) error {
 
 	metaData := meta_data.MetaDataService{Appid: strconv.Itoa(reqData.Appid)}
 
-	res,err := metaData.GetCalcuSymbolData(reqData)
+	res, err := metaData.GetCalcuSymbolData(reqData)
 
 	if err != nil {
 		return this.Error(ctx, err)
@@ -205,7 +205,7 @@ func (this MetaDataController) GetAnalyseSelectOptions(ctx *fiber.Ctx) error {
 
 	metaData := meta_data.MetaDataService{Appid: strconv.Itoa(reqData.Appid)}
 
-	res,err := metaData.GetAnalyseSelectOptions(reqData.Appid)
+	res, err := metaData.GetAnalyseSelectOptions(reqData.Appid)
 
 	if err != nil {
 		return this.Error(ctx, err)

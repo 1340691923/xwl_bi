@@ -28,19 +28,17 @@ func (this *Trace) setSqlTyp(typ int) {
 	this.sqlTyp = typ
 }
 
-
 func (this *Trace) GetList() (interface{}, error) {
 
 	type Res1 struct {
 		Source string `json:"source"`
 		Target string `json:"target"`
-		Value int `json:"value"`
+		Value  int    `json:"value"`
 	}
 
 	type Res2 struct {
 		Name string `json:"name"`
 	}
-
 
 	this.setSqlTyp(TableSql)
 
@@ -207,7 +205,7 @@ func (this *Trace) GetChartSql() (SQL string, allArgs []interface{}, err error) 
 		
 		with  ` + this.eventNameMapStr + ` as eventMap 
 		
-		select result_chain as trace33,concat(mapValues(eventMap)[indexOf(mapKeys(eventMap), '`+this.req.ZhibiaoArr[0].EventName+`')],'(最终路径)') as str_link  from 
+		select result_chain as trace33,concat(mapValues(eventMap)[indexOf(mapKeys(eventMap), '` + this.req.ZhibiaoArr[0].EventName + `')],'(最终路径)') as str_link  from 
 		
 		(
 		select
@@ -226,7 +224,7 @@ func (this *Trace) GetChartSql() (SQL string, allArgs []interface{}, err error) 
                                                           ), 
                                                           arrayWithConstant(
                                                                 length(groupArray(toUnixTimestamp(part_date))),
-                                                            maxIf(toUnixTimestamp(part_date) `+strings.ReplaceAll(windowSql,"xwl_part_event","event.1")+`  )
+                                                            maxIf(toUnixTimestamp(part_date) ` + strings.ReplaceAll(windowSql, "xwl_part_event", "event.1") + `  )
                                                           )
                                                         )
                                                   )
@@ -274,53 +272,51 @@ func (this *Trace) GetChartSql() (SQL string, allArgs []interface{}, err error) 
 
 	/*SQL = `select  splitByString('->', arrayJoin(arrayMap(	(x, y) -> concat(concat( x,'->'),y),arraySlice(trace, 1, length(trace) - 1),arraySlice(trace, 2, length(trace)) ))) as trace2,sum(1) as sum_user_count from (
 
-		select if(length(trace33)==1,arrayPushBack(trace33,str_link),arrayPushBack(arraySlice(trace33, 1, length(trace33) - 1),str_link)) as trace from (
-		select  arrayMap((x, y) -> CONCAT(x, concat('(',concat(toString(y),')'))),result_chain,arrayEnumerateUniq(result_chain)) as trace33,concat(mapValues(eventMap)[indexOf(mapKeys(eventMap), '`+this.req.ZhibiaoArr[0].EventName+`')],'(最终路径)') as str_link  from (
+			select if(length(trace33)==1,arrayPushBack(trace33,str_link),arrayPushBack(arraySlice(trace33, 1, length(trace33) - 1),str_link)) as trace from (
+			select  arrayMap((x, y) -> CONCAT(x, concat('(',concat(toString(y),')'))),result_chain,arrayEnumerateUniq(result_chain)) as trace33,concat(mapValues(eventMap)[indexOf(mapKeys(eventMap), '`+this.req.ZhibiaoArr[0].EventName+`')],'(最终路径)') as str_link  from (
 
-			select
-	  xwl_distinct_id as user_id, ` + this.eventNameMapStr + ` as eventMap,
+				select
+		  xwl_distinct_id as user_id, ` + this.eventNameMapStr + ` as eventMap,
 
-					   arrayCompact(
-						arrayMap(
-						  b -> tupleElement(b, 1),
-						  arraySort(
-							y -> tupleElement(y, 2),
-							arrayFilter(
-						   (x, y) -> y - x.2 <= ` + strconv.Itoa(this.req.WindowTime) + ` and  y - x.2 >= 0,
-							  arrayMap(
-								(x, y) -> (x, y),
-					 			groupArray(mapValues(eventMap)[indexOf(mapKeys(eventMap), xwl_part_event)]),
-								groupArray(toUnixTimestamp(xwl_part_date))
-							  ),
-							  arrayWithConstant(
-								length(groupArray(toUnixTimestamp(xwl_part_date))),
-							    maxIf(toUnixTimestamp(xwl_part_date)` + windowSql + ` )
+						   arrayCompact(
+							arrayMap(
+							  b -> tupleElement(b, 1),
+							  arraySort(
+								y -> tupleElement(y, 2),
+								arrayFilter(
+							   (x, y) -> y - x.2 <= ` + strconv.Itoa(this.req.WindowTime) + ` and  y - x.2 >= 0,
+								  arrayMap(
+									(x, y) -> (x, y),
+						 			groupArray(mapValues(eventMap)[indexOf(mapKeys(eventMap), xwl_part_event)]),
+									groupArray(toUnixTimestamp(xwl_part_date))
+								  ),
+								  arrayWithConstant(
+									length(groupArray(toUnixTimestamp(xwl_part_date))),
+								    maxIf(toUnixTimestamp(xwl_part_date)` + windowSql + ` )
+								  )
+								)
 							  )
 							)
-						  )
-						)
-					   )
+						   )
 
-					  result_chain
-					from
-			       xwl_event` + strconv.Itoa(this.req.Appid) + `
-						prewhere
-			   xwl_part_date >= toDateTime('` + startTime + `')
-				AND xwl_part_date <= toDateTime('` + endTime + `') and ` + whereFilterSql + ` ` + userFilterSql + `
-					group by
-					  xwl_distinct_id
-					  HAVING notEmpty(result_chain)
+						  result_chain
+						from
+				       xwl_event` + strconv.Itoa(this.req.Appid) + `
+							prewhere
+				   xwl_part_date >= toDateTime('` + startTime + `')
+					AND xwl_part_date <= toDateTime('` + endTime + `') and ` + whereFilterSql + ` ` + userFilterSql + `
+						group by
+						  xwl_distinct_id
+						  HAVING notEmpty(result_chain)
 
-		)))
+			)))
 
-		group by trace2
+			group by trace2
 
-    `*/
-
+	    `*/
 
 	return
 }
-
 
 func (this *Trace) GetExecSql() (SQL string, allArgs []interface{}, err error) {
 	if this.sqlTyp == ChartSql {
@@ -366,7 +362,6 @@ func NewTrace(reqData []byte) (Ianalysis, error) {
 	obj.eventNameMapStr = mapStr
 
 	obj.sql, obj.args, err = utils.GetUserGroupSqlAndArgs(obj.req.UserGroup, obj.req.Appid)
-
 
 	if err != nil {
 		return nil, err

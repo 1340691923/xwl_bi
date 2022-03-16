@@ -85,7 +85,7 @@ func (this GmUserModel) Select(appid string) (gmUser []GmUserModel, err error) {
 // Delete
 func (this GmUserModel) Delete() (err error) {
 	_, err = db.Sqlx.Exec("delete from gm_user where id = ? ;", this.ID)
-	if err!=nil{
+	if err != nil {
 		return
 	}
 

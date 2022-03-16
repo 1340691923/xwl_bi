@@ -99,7 +99,7 @@ func (this *PannelService) MovePannel2Dir(id, folderId int, managerUid int32) (e
 func (this *PannelService) Rename(pannelName string, id int, managerUid int32) (err error) {
 	_, err = db.SqlBuilder.
 		Update("pannel").
-		SetMap(map[string]interface{}{"pannel_name": pannelName,}).
+		SetMap(map[string]interface{}{"pannel_name": pannelName}).
 		Where(db.Eq{"id": id, "create_by": managerUid}).
 		RunWith(db.Sqlx).
 		Exec()
@@ -184,7 +184,7 @@ FROM
 	return
 }
 
-func(this *PannelService) FindRtById(id int,managerUid int32)(reportTable model.ReportTable,err error){
+func (this *PannelService) FindRtById(id int, managerUid int32) (reportTable model.ReportTable, err error) {
 	sqls, args, err := db.SqlBuilder.
 		Select("*").
 		From("report_table").
@@ -192,36 +192,34 @@ func(this *PannelService) FindRtById(id int,managerUid int32)(reportTable model.
 		ToSql()
 
 	if err != nil {
-		return reportTable,err
+		return reportTable, err
 	}
-
 
 	if err := db.Sqlx.Get(&reportTable, sqls, args...); err != nil {
 		if err == sql.ErrNoRows {
-			return reportTable,errors.New("您无权限操作该报表或该报表已被删除")
+			return reportTable, errors.New("您无权限操作该报表或该报表已被删除")
 		}
-		return reportTable,err
+		return reportTable, err
 	}
 
-	return reportTable,err
+	return reportTable, err
 }
 
-func(this *PannelService)FindNameCount(data request.FindNameCount,managerUid int32)(count int,err error){
+func (this *PannelService) FindNameCount(data request.FindNameCount, managerUid int32) (count int, err error) {
 	if err := db.SqlBuilder.
 		Select("count(1)").
 		From("report_table").
 		Where(db.Eq{"name": data.Name, "rt_type": data.RtType, "appid": data.Appid, "user_id": managerUid}).
 		RunWith(db.Sqlx).
 		QueryRow().
-		Scan(&count);
-	err != nil {
-		return 0,err
+		Scan(&count); err != nil {
+		return 0, err
 	}
-	return count,nil
+	return count, nil
 }
 
-func(this *PannelService) DeleteReportTableByID(data model.ReportTable,managerUid int32)(err error){
-	if _, err := db.SqlBuilder.Delete("report_table").Where(db.Eq{"id": data.Id, "user_id":managerUid}).RunWith(db.Sqlx).Exec(); err != nil {
+func (this *PannelService) DeleteReportTableByID(data model.ReportTable, managerUid int32) (err error) {
+	if _, err := db.SqlBuilder.Delete("report_table").Where(db.Eq{"id": data.Id, "user_id": managerUid}).RunWith(db.Sqlx).Exec(); err != nil {
 		return err
 	}
 
@@ -233,8 +231,7 @@ func(this *PannelService) DeleteReportTableByID(data model.ReportTable,managerUi
 	return nil
 }
 
-func(this *PannelService) ReportTableList(appid int,rtType int8,managerUid int32)(list []model.ReportTable,err error){
-
+func (this *PannelService) ReportTableList(appid int, rtType int8, managerUid int32) (list []model.ReportTable, err error) {
 
 	where := db.Eq{
 		"appid":   appid,
@@ -248,13 +245,13 @@ func(this *PannelService) ReportTableList(appid int,rtType int8,managerUid int32
 	sql, args, err := db.SqlBuilder.Select("*").From("report_table").Where(where).OrderBy("rt_type").ToSql()
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	if err := db.Sqlx.Select(&list, sql, args...); err != nil {
-		return  nil,err
+		return nil, err
 	}
 
-	return list,nil
+	return list, nil
 
 }

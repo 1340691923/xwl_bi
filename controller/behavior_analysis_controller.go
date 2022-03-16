@@ -72,7 +72,7 @@ func (this BehaviorAnalysisController) LoadPropQuotas(ctx *fiber.Ctx) error {
 func (this BehaviorAnalysisController) GetValues(ctx *fiber.Ctx) error {
 
 	type ReqData struct {
-		Appid int32    `json:"appid"`
+		Appid int32  `json:"appid"`
 		Table string `json:"table"`
 		Col   string `json:"col"`
 	}

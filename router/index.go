@@ -16,9 +16,9 @@ import (
 func Init() *App {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	app := New(Config{
-		AppName: "铸龙-BI",
-		JSONDecoder:json.Unmarshal,
-		JSONEncoder:json.Marshal,
+		AppName:     "铸龙-BI",
+		JSONDecoder: json.Unmarshal,
+		JSONEncoder: json.Marshal,
 	})
 
 	app.Use(compress.New(compress.Config{
@@ -32,7 +32,7 @@ func Init() *App {
 	app.Use(
 		cors.New(),
 		pprof.New(),
-		)
+	)
 
 	app.Post("/api/gm_user/login", ManagerUserController{}.Login)
 	routerWebsocket(app)
@@ -40,7 +40,7 @@ func Init() *App {
 		Timer,
 		JwtMiddleware,
 		Rbac,
-		)
+	)
 
 	return runRouterGroupFn(
 		app,

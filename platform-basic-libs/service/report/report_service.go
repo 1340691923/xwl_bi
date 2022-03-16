@@ -17,7 +17,6 @@ import (
 )
 
 type ReportService struct {
-
 }
 
 var tableIdMap sync.Map

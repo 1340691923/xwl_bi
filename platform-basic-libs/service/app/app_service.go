@@ -123,14 +123,14 @@ func (this *AppService) Create(app model.App, managerUid int32) (err error) {
 	return
 }
 
-func(this AppService) ChangeStatus(app model.App, managerUid int32)(err error){
+func (this AppService) ChangeStatus(app model.App, managerUid int32) (err error) {
 	if !util.InArr([]int{1, 0}, *app.IsClose) {
 		return errors.New("无效操作")
 	}
 	_, err = db.SqlBuilder.Update("app").
 		SetMap(map[string]interface{}{
-		"is_close":  *app.IsClose,
-		"update_by": managerUid}).
+			"is_close":  *app.IsClose,
+			"update_by": managerUid}).
 		Where(db.Eq{"app_id": app.AppId}).
 		RunWith(db.Sqlx).
 		Exec()
@@ -190,7 +190,7 @@ func (this *AppService) List(managerUid int32, app model.App) (list []model.App,
 	return
 }
 
-func(this *AppService) ResetAppkey(managerUid int32,app model.App)(err error){
+func (this *AppService) ResetAppkey(managerUid int32, app model.App) (err error) {
 
 	app.AppKey = util.MD5HexHash(util.Str2bytes(util.GetUUid()))
 

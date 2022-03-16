@@ -15,30 +15,30 @@ var CmdName string
 //全局配置结构体
 type Config struct {
 	Manager ManagerConfig `json:"manager"`
-	Report            ReportConfig `json:"report"`
-	Sinker SinkerConfig `json:"sinker"`
-	Comm struct{
-		Log     LogConfig `json:"log"`
-		Mysql MysqlConfig `json:"mysql"`
+	Report  ReportConfig  `json:"report"`
+	Sinker  SinkerConfig  `json:"sinker"`
+	Comm    struct {
+		Log        LogConfig        `json:"log"`
+		Mysql      MysqlConfig      `json:"mysql"`
 		ClickHouse ClickHouseConfig `json:"clickhouse"`
-		Kafka     KafkaCfg `json:"kafka"`
-		Redis RedisConfig `json:"redis"`
+		Kafka      KafkaCfg         `json:"kafka"`
+		Redis      RedisConfig      `json:"redis"`
 	} `json:"comm"`
 }
 
-type ManagerConfig struct{
-	Port            uint16 `json:"port"`		//铸龙分析系统http启动端口
-	CkQueryLimit      int `json:"ckQueryLimit"`	//clickhouse 查询限流器阈值
-	CkQueryExpiration int `json:"ckQueryExpiration"` //clickhouse 查询限流器阈值
-	JwtSecret string   `json:"jwtSecret"`
-	DeBug        bool `json:"deBug"`
+type ManagerConfig struct {
+	Port              uint16 `json:"port"`              //铸龙分析系统http启动端口
+	CkQueryLimit      int    `json:"ckQueryLimit"`      //clickhouse 查询限流器阈值
+	CkQueryExpiration int    `json:"ckQueryExpiration"` //clickhouse 查询限流器阈值
+	JwtSecret         string `json:"jwtSecret"`
+	DeBug             bool   `json:"deBug"`
 }
 
 type SinkerConfig struct {
 	ReportAcceptStatus  BatchConfig `json:"reportAcceptStatus"`
 	ReportData2CK       BatchConfig `json:"reportData2CK"`
 	RealTimeWarehousing BatchConfig `json:"realTimeWarehousing"`
-	PprofHttpPort       uint16 `json:"pprofHttpPort"`
+	PprofHttpPort       uint16      `json:"pprofHttpPort"`
 }
 
 type RedisConfig struct {
@@ -73,18 +73,18 @@ type MysqlConfig struct {
 }
 
 type ReportConfig struct {
-	ReportPort         uint16 `json:"reportPort"`//上报程序启动端口
-	ReadTimeout        int `json:"readTimeout"`
-	WriteTimeout       int `json:"writeTimeout"`
-	MaxConnsPerIP      int `json:"maxConnsPerIP"`
-	MaxRequestsPerConn int `json:"maxRequestsPerConn"`
-	IdleTimeout        int `json:"idleTimeout"`
+	ReportPort         uint16   `json:"reportPort"` //上报程序启动端口
+	ReadTimeout        int      `json:"readTimeout"`
+	WriteTimeout       int      `json:"writeTimeout"`
+	MaxConnsPerIP      int      `json:"maxConnsPerIP"`
+	MaxRequestsPerConn int      `json:"maxRequestsPerConn"`
+	IdleTimeout        int      `json:"idleTimeout"`
 	UserAgentBanList   []string `json:"userAgentBanList"`
 }
 
 type LogConfig struct {
 	StorageDays int    `json:"storageDays"` //日志保留天数
-	LogDir      string `json:"logDir"`	//日志保留文件夹地址
+	LogDir      string `json:"logDir"`      //日志保留文件夹地址
 }
 
 func (this *Config) GetCkQueryLimit() int {
@@ -128,7 +128,7 @@ type BatchConfig struct {
 }
 
 //下载配置文件
-func DownloadConfigFile(fname string)(err error){
+func DownloadConfigFile(fname string) (err error) {
 	var json = jsoniter.ConfigCompatibleWithStandardLibrary
 	var config Config
 	filePtr, err := os.Create(fname)
@@ -141,6 +141,6 @@ func DownloadConfigFile(fname string)(err error){
 	if err != nil {
 		return errors.New(fmt.Sprintf("创建配置文件异常:%s", err.Error()))
 	}
-	_,err = filePtr.Write(data)
+	_, err = filePtr.Write(data)
 	return
 }

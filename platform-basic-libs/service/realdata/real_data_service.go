@@ -9,11 +9,10 @@ import (
 )
 
 type RealDataService struct {
-
 }
 
 //错误数据列表
-func (this RealDataService) FailDataList(minutes int,appid int) (failDataResList []response.FailDataRes,err error) {
+func (this RealDataService) FailDataList(minutes int, appid int) (failDataResList []response.FailDataRes, err error) {
 
 	err = db.ClickHouseSqlx.Select(&failDataResList, `
 			select  
@@ -23,12 +22,12 @@ func (this RealDataService) FailDataList(minutes int,appid int) (failDataResList
 			from (select * from xwl_acceptance_status prewhere table_id = ? and status = ? order by part_date desc limit 1000 ) a
 			group by interval_date,a.error_reason,a.error_handling,report_type
 			order by interval_date desc;
-	`,minutes,appid,consumer_data.FailStatus)
+	`, minutes, appid, consumer_data.FailStatus)
 
 	return
 }
 
-func(this RealDataService) FailDataDesc(appid ,startTime ,endTime ,errorReason ,errorHandling ,reportType string )(data string ,err error){
+func (this RealDataService) FailDataDesc(appid, startTime, endTime, errorReason, errorHandling, reportType string) (data string, err error) {
 	err = db.ClickHouseSqlx.Get(&data, `
 			select report_data from xwl_acceptance_status prewhere
 			table_id = `+appid+`
@@ -42,7 +41,7 @@ func(this RealDataService) FailDataDesc(appid ,startTime ,endTime ,errorReason ,
 	return
 }
 
-func(this RealDataService)ReportCount(appid string,startTime string,endTime string)(res []response.ReportCountRes,err error){
+func (this RealDataService) ReportCount(appid string, startTime string, endTime string) (res []response.ReportCountRes, err error) {
 	type count struct {
 		DataName string `db:"data_name"`
 		Count    int    `db:"count"`
@@ -59,20 +58,20 @@ func(this RealDataService)ReportCount(appid string,startTime string,endTime stri
 	var showNameTmpArr []ShowNameTmp
 	mysqlErr := db.Sqlx.Select(&showNameTmpArr, "select event_name,show_name from meta_event where appid = ?", appid)
 	if util.FilterMysqlNilErr(mysqlErr) {
-		return nil,mysqlErr
+		return nil, mysqlErr
 	}
 	err = db.ClickHouseSqlx.Select(&allCountArr, `select data_name,count() as count from xwl_acceptance_status xas prewhere table_id = `+appid+` and  part_date >= '`+startTime+`'  and part_date <= '`+endTime+`' group by data_name`)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	err = db.ClickHouseSqlx.Select(&failCountArr, `select data_name,count() as count from xwl_acceptance_status xas prewhere   status = 0 and	table_id = `+appid+` and  part_date >= '`+startTime+`'  and part_date <= '`+endTime+`' group by data_name`)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	err = db.ClickHouseSqlx.Select(&succCountArr, `select data_name,count() as count from xwl_acceptance_status xas prewhere  status = 1 and table_id = `+appid+` and  part_date >= '`+startTime+`'  and part_date <= '`+endTime+`' group by data_name`)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	resMap := map[string]response.ReportCountRes{}
@@ -111,10 +110,10 @@ func(this RealDataService)ReportCount(appid string,startTime string,endTime stri
 	for _, data := range resMap {
 		res = append(res, data)
 	}
-	return res,nil
+	return res, nil
 }
 
-func(this RealDataService)EventFailDesc(appid ,startTime ,endTime,dataName string)(res []response.EventFailDescRes,err error){
+func (this RealDataService) EventFailDesc(appid, startTime, endTime, dataName string) (res []response.EventFailDescRes, err error) {
 	err = db.ClickHouseSqlx.Select(&res, `select error_reason,count() as count,any(report_data) as report_data from xwl_acceptance_status prewhere 
 			table_id = `+appid+`
 			and part_date >= '`+startTime+`'
@@ -123,7 +122,7 @@ func(this RealDataService)EventFailDesc(appid ,startTime ,endTime,dataName strin
 			and status = `+strconv.Itoa(consumer_data.FailStatus)+`
 			group by  error_reason`)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
-	return res,nil
+	return res, nil
 }

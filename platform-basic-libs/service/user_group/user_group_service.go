@@ -40,18 +40,18 @@ func (this *UserGroupService) UserGroupList() (list []model.UserGroup, err error
 	userGroup := model.UserGroup{}
 	list, err = userGroup.List(this.ManagerID, this.Appid)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	for index := range list {
 		userListData, err := util.GzipUnCompress(list[index].UserList)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 		list[index].UserListData = strings.Split(userListData, ",")
 	}
 
-	return list,err
+	return list, err
 
 }
 

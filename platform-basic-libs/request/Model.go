@@ -215,24 +215,24 @@ type GetUserByIdReq struct {
 type ReportCountReq struct {
 	StartTime string `json:"start_time"`
 	EndTime   string `json:"end_time"`
-	Appid     int `json:"appid"`
+	Appid     int    `json:"appid"`
 }
 
 type EventFailDescReq struct {
 	StartTime string `json:"start_time"`
 	EndTime   string `json:"end_time"`
-	Appid     int `json:"appid"`
+	Appid     int    `json:"appid"`
 	DataName  string `json:"data_name"`
 }
 
 type AddDebugDeviceIDReq struct {
-	Appid    int `json:"appid"`
+	Appid    int    `json:"appid"`
 	Remark   string `json:"remark"`
 	DeviceID string `json:"deviceID"`
 }
 
 type DelDebugDeviceIDReq struct {
-	Appid    int `json:"appid"`
+	Appid    int    `json:"appid"`
 	DeviceID string `json:"deviceID"`
 }
 
@@ -259,22 +259,21 @@ type UserBanReq struct {
 	Id  int `json:"id"`
 }
 
-
 type AttrManagerReq struct {
 	Appid int `json:"appid"`
 	Typ   int `json:"typ"`
 }
 
 type UpdateAttrInvisibleReq struct {
-	Appid           int `json:"appid"`
-	AttributeSource int `json:"attribute_source"`
+	Appid           int    `json:"appid"`
+	AttributeSource int    `json:"attribute_source"`
 	AttributeName   string `json:"attribute_name"`
 	Status          int    `json:"status"`
 }
 
 type AttrManagerByMetaReq struct {
-	Appid     int `json:"appid"`
-	Typ       int `json:"typ"`
+	Appid     int    `json:"appid"`
+	Typ       int    `json:"typ"`
 	EventName string `json:"event_name"`
 }
 
@@ -285,14 +284,14 @@ type UpdateShowNameReq struct {
 }
 
 type UpdateAttrShowNameReq struct {
-	Appid         int `json:"appid"`
+	Appid         int    `json:"appid"`
 	AttributeName string `json:"attribute_name"`
-	Typ           int `json:"typ"`
+	Typ           int    `json:"typ"`
 	ShowName      string `json:"show_name"`
 }
 
 type GetCalcuSymbolDataReq struct {
-	Appid     int `json:"appid"`
+	Appid     int    `json:"appid"`
 	EventName string `json:"event_name"`
 }
 

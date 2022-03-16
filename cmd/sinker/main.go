@@ -154,8 +154,6 @@ func main() {
 		panic(err)
 	}
 
-
-
 	err = reportData2CKSarama.Init(
 		model.GlobConfig.Comm.Kafka,
 		model.GlobConfig.Comm.Kafka.ReportTopicName,
@@ -294,7 +292,7 @@ func main() {
 			}
 			//添加数据到ck用于后台统计
 			if err := reportData2CK.Add(consumer_data.FastjsonMetricData{
-				TableName:tableName,
+				TableName:      tableName,
 				FastjsonMetric: metric,
 			}); err != nil {
 				logs.Logger.Error("reportData2CK err", zap.Error(err))

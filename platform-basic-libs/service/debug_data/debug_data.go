@@ -6,11 +6,9 @@ import (
 )
 
 type DebugData struct {
-
 }
 
-func(this *DebugData) AddDebugDeviceID(appid,deviceID,remark string,managerUid int32)(err error){
-
+func (this *DebugData) AddDebugDeviceID(appid, deviceID, remark string, managerUid int32) (err error) {
 
 	_, err = db.SqlBuilder.Insert("debug_device").SetMap(map[string]interface{}{
 		"remark":    remark,
@@ -35,7 +33,7 @@ func(this *DebugData) AddDebugDeviceID(appid,deviceID,remark string,managerUid i
 	return
 }
 
-func(this *DebugData) DelDebugDeviceID(appid,deviceID string,managerUid int32)(err error){
+func (this *DebugData) DelDebugDeviceID(appid, deviceID string, managerUid int32) (err error) {
 
 	_, err = db.SqlBuilder.
 		Delete("debug_device").
@@ -57,7 +55,7 @@ func(this *DebugData) DelDebugDeviceID(appid,deviceID string,managerUid int32)(e
 	return
 }
 
-func(this *DebugData) DebugDeviceIDList(appid int,managerUid int32)(res []model.DebugDevice,err error){
+func (this *DebugData) DebugDeviceIDList(appid int, managerUid int32) (res []model.DebugDevice, err error) {
 
 	sql, args, err := db.SqlBuilder.
 		Select("*").

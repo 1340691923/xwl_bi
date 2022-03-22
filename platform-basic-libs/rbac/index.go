@@ -26,8 +26,6 @@ func Run(driverName string, datasource string) (err error) {
 	model := xormadapter.NewAdapter(driverName, datasource, true)
 	Enforcer = casbin.NewEnforcer(policy, model)
 	err = Enforcer.LoadPolicy()
-	if err != nil {
-		return
-	}
+
 	return
 }

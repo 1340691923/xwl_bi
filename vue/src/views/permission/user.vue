@@ -236,7 +236,7 @@ export default {
     },
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-      if (this.role.password.length < 5) {
+      if (this.role.password.length < 5 && this.role.password.trim()!="") {
         this.$message({
           offset: 60,
 

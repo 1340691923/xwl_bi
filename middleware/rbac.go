@@ -36,12 +36,10 @@ func Rbac(ctx *fiber.Ctx) error {
 		if obj == routerConfig.Url {
 			ok, err := rbac.Enforcer.EnforceSafe(strconv.Itoa(sub), obj, "*")
 			if err != nil {
-				res.Error(ctx, my_error.NewBusiness(TOKEN_ERROR, ERROR_RBAC_LOAD))
-				return err
+				return res.Error(ctx, my_error.NewBusiness(TOKEN_ERROR, ERROR_RBAC_LOAD))
 			}
 			if !ok {
-				res.Error(ctx, my_error.NewBusiness(TOKEN_ERROR, ERROR_RBAC_AUTH))
-				return err
+				return res.Error(ctx, my_error.NewBusiness(TOKEN_ERROR, ERROR_RBAC_AUTH))
 			}
 		}
 	}

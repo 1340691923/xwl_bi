@@ -13,7 +13,6 @@ import (
 	. "github.com/gofiber/fiber/v2"
 	"github.com/tidwall/gjson"
 	"go.uber.org/zap"
-	"strings"
 )
 
 //BI用户控制器
@@ -183,10 +182,6 @@ func (this ManagerUserController) UserUpdateAction(ctx *Ctx) error {
 
 	if err != nil {
 		return this.Error(ctx, err)
-	}
-
-	if strings.TrimSpace(reqData.Password) == "" {
-		return this.Error(ctx, errors.New("密码不能为空"))
 	}
 
 	var userModel model.GmUserModel

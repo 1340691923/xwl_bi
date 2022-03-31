@@ -365,6 +365,10 @@ export default {
         this.currentReportTable.name = res.data.name
         this.currentReportTable.remark = res.data.remark
         this.form = JSON.parse(res.data.data)
+        this.form.date = [
+          moment().startOf('day').subtract(1, 'days').format('YYYY-MM-DD'),
+          moment().startOf('day').subtract(1, 'days').format('YYYY-MM-DD')
+        ]
         this.go()
       }
     },

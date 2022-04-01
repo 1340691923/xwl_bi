@@ -36,13 +36,13 @@ func runAnalysis(app *fiber.App) {
 		c.MountApi(api_config.MountApiBasePramas{Remark: "查询用户访问过的事件详情", AbsolutePath: AbsolutePath}, appG.(*fiber.Group), BehaviorAnalysisController{}.UserEventDetailList)
 		c.MountApi(api_config.MountApiBasePramas{Remark: "查询用户访问过的事件统计", AbsolutePath: AbsolutePath}, appG.(*fiber.Group), BehaviorAnalysisController{}.UserEventCountList)
 
-		f := appG.
+		/*f := appG.
 			Use(limiter.New(
 				limiter.Config{
-					Max:        1,
+					Max:        2,
 					Expiration: 2 * time.Second,
-				}))
+				}))*/
 
-		c.MountApi(api_config.MountApiBasePramas{Remark: "智能路径分析查询", AbsolutePath: AbsolutePath}, f.(*fiber.Group), BehaviorAnalysisController{}.TraceList)
+		c.MountApi(api_config.MountApiBasePramas{Remark: "智能路径分析查询", AbsolutePath: AbsolutePath}, appG.(*fiber.Group), BehaviorAnalysisController{}.TraceList)
 	}
 }

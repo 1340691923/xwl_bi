@@ -25,7 +25,7 @@
         style="height: 50px;line-height: 50px;display: flex;align-items: center;justify-content: space-between;border-bottom: 1px solid #f0f2f5"
       >
         <div>
-          <el-tabs size="small"  v-model="refreshtActiveName" @tab-click="handleClick">
+          <el-tabs v-model="refreshtActiveName" size="small" @tab-click="handleClick">
             <el-tab-pane label="实时入库" name="realTime2Es" />
             <el-tab-pane label="错误数据" name="failData" />
           </el-tabs>
@@ -72,7 +72,7 @@
 
 <script>
 
-import moment from "_moment@2.29.1@moment";
+import moment from 'moment'
 
 export default {
   name: 'RealTime',
@@ -97,9 +97,6 @@ export default {
       searchKw: ''
     }
   },
-  mounted() {
-
-  },
   computed: {
     dateFormart() {
       if (this.date.length == 0) return ''
@@ -118,6 +115,9 @@ export default {
         this.activeName = val
       }
     }
+  },
+  mounted() {
+
   },
   methods: {
     changeDate(date) {

@@ -13,7 +13,12 @@ func GetUserGroupSqlAndArgs(ids []int, appid int) (SQL string, Args []interface{
 		return " and ( 1 = 1 ) ", nil, err
 	}
 
-	sql, args, err := db.SqlBuilder.Select("user_list").From("user_group").Where(db.Eq{"appid": appid, "id": ids}).ToSql()
+	sql, args, err := db.
+		SqlBuilder.
+		Select("user_list").
+		From("user_group").
+		Where(db.Eq{"appid": appid, "id": ids}).
+		ToSql()
 
 	var userGroupList []model.UserGroup
 

@@ -244,9 +244,13 @@ func (this ManagerUserController) UserBanAction(ctx *Ctx) error {
 		return this.Error(ctx, errors.New("您无权操作该用户!"))
 	}
 
-	_, err = db.SqlBuilder.Update("gm_user").SetMap(map[string]interface{}{
-		"is_del": ban_typ,
-	}).Where(db.Eq{"id": id}).RunWith(db.Sqlx).Exec()
+	_, err = db.
+		SqlBuilder.
+		Update("gm_user").
+		SetMap(map[string]interface{}{"is_del": ban_typ}).
+		Where(db.Eq{"id": id}).
+		RunWith(db.Sqlx).
+		Exec()
 
 	if err != nil {
 		return this.Error(ctx, err)

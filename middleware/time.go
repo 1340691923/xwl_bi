@@ -16,8 +16,11 @@ func Timer(ctx *fiber.Ctx) error {
 	err := ctx.Next()
 	// stop timer
 	stop := time.Now()
-
-	logs.Logger.Info("时间拦截器", zap.String("消耗时间：", stop.Sub(start).String()))
+	
+	logs.Logger.Info("时间拦截器",
+		zap.String("访问资源",ctx.Path()),
+		zap.Reflect("body",string(ctx.Body())),
+		zap.String("消耗时间：", stop.Sub(start).String()))
 	return err
 
 }

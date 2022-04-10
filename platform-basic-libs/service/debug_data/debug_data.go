@@ -10,7 +10,10 @@ type DebugData struct {
 
 func (this *DebugData) AddDebugDeviceID(appid, deviceID, remark string, managerUid int32) (err error) {
 
-	_, err = db.SqlBuilder.Insert("debug_device").SetMap(map[string]interface{}{
+	_, err = db.
+		SqlBuilder.
+		Insert("debug_device").
+		SetMap(map[string]interface{}{
 		"remark":    remark,
 		"device_id": deviceID,
 		"appid":     appid,

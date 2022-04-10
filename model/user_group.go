@@ -19,7 +19,10 @@ type UserGroup struct {
 }
 
 func (this *UserGroup) Insert(managerUid int32, appid int, userCount int, userList []byte) (err error) {
-	_, err = db.SqlBuilder.Insert("user_group").SetMap(map[string]interface{}{
+	_, err = db.
+		SqlBuilder.
+		Insert("user_group").
+		SetMap(map[string]interface{}{
 		"group_name":   this.GroupName,
 		"group_remark": this.GroupRemark,
 		"create_by":    managerUid,

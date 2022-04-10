@@ -18,7 +18,9 @@ func (this *GmRoleModel) GetById(roleId int) (model GmRoleModel, err error) {
 
 // Update
 func (this *GmRoleModel) Update() (err error) {
-	_, err = db.Sqlx.Exec("update gm_role set role_name = ?,description=?,role_list=? where id = ?;", this.RoleName, this.Description, this.RoleList, this.ID)
+	_, err = db.Sqlx.Exec(
+		"update gm_role set role_name = ?,description=?,role_list=? where id = ?;",
+		this.RoleName, this.Description, this.RoleList, this.ID)
 	return
 }
 
@@ -30,7 +32,9 @@ func (this *GmRoleModel) Delete() (err error) {
 
 // Insert
 func (this *GmRoleModel) Insert() (id int64, err error) {
-	rlt, err := db.Sqlx.Exec("insert into gm_role (role_name,description,role_list) values (?,?,?);", this.RoleName, this.Description, this.RoleList)
+	rlt, err := db.Sqlx.Exec(
+		"insert into gm_role (role_name,description,role_list) values (?,?,?);",
+		this.RoleName, this.Description, this.RoleList)
 	if err != nil {
 		return
 	}

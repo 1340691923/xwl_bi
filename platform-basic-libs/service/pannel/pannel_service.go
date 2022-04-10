@@ -14,9 +14,13 @@ type PannelService struct {
 }
 
 func (this *PannelService) UpdatePannelManager(managers string, id int, managerUid int32) (err error) {
-	_, err = db.SqlBuilder.Update("pannel").SetMap(map[string]interface{}{
-		"managers": managers,
-	}).Where(db.Eq{"id": id, "create_by": managerUid}).RunWith(db.Sqlx).Exec()
+	_, err = db.
+		SqlBuilder.
+		Update("pannel").
+		SetMap(map[string]interface{}{"managers": managers}).
+		Where(db.Eq{"id": id, "create_by": managerUid}).
+		RunWith(db.Sqlx).
+		Exec()
 	return
 }
 
@@ -24,7 +28,12 @@ func (this *PannelService) RtListByAppid(appid int) (res map[int]model.ReportTab
 
 	res = map[int]model.ReportTable{}
 
-	sql, args, err := db.SqlBuilder.Select("id,name,rt_type,data").From("report_table").Where(db.Eq{"appid": appid}).ToSql()
+	sql, args, err := db.
+		SqlBuilder.
+		Select("id,name,rt_type,data").
+		From("report_table").
+		Where(db.Eq{"appid": appid}).
+		ToSql()
 
 	if err != nil {
 		return nil, err
@@ -64,13 +73,17 @@ func (this *PannelService) UpdatePannelRt(reportTables string, id int, managerUi
 }
 
 func (this *PannelService) CopyPannel(data model.Pannel, managerUid int32) (err error) {
-	_, err = db.Sqlx.Exec(`insert into pannel(folder_id,pannel_name,create_by,report_tables) values (?,?,?,?)`,
-		data.FolderId, data.PannelName, managerUid, data.ReportTables)
+	_, err = db.
+		Sqlx.
+		Exec(`insert into pannel(folder_id,pannel_name,create_by,report_tables) values (?,?,?,?)`,
+		data.FolderId, data.PannelName, managerUid, data.ReportTables,
+		)
 	return
 }
 
 func (this *PannelService) DeleteDir(data model.PannelFolder) (err error) {
-	_, err = db.Sqlx.Exec(`		
+	_, err = db.Sqlx.
+		Exec(`		
 		DELETE p1,p2 FROM
 	pannel_folder p1
 	LEFT JOIN pannel p2 ON p1.id = p2.folder_id where p1.id = ? and p1.appid = ? and p1.create_by = ?`, data.Id, data.Appid, data.CreateBy)
@@ -107,12 +120,16 @@ func (this *PannelService) Rename(pannelName string, id int, managerUid int32) (
 }
 
 func (this *PannelService) AddDir(data request.NewDir) (err error) {
-	_, err = db.SqlBuilder.Insert("pannel_folder").
+	_, err = db.
+		SqlBuilder.
+		Insert("pannel_folder").
 		SetMap(map[string]interface{}{
 			"appid":       data.Appid,
 			"create_by":   data.CreateBy,
 			"folder_name": data.FolderName,
-		}).RunWith(db.Sqlx).Exec()
+		}).
+		RunWith(db.Sqlx).
+		Exec()
 	return
 }
 
@@ -123,7 +140,9 @@ func (this *PannelService) AddPannel(data request.NewPannel, managerUid int32) (
 			"folder_id":   data.FolderId,
 			"pannel_name": data.PannelName,
 			"create_by":   managerUid,
-		}).RunWith(db.Sqlx).Exec()
+		}).
+		RunWith(db.Sqlx).
+		Exec()
 	return
 }
 
@@ -153,7 +172,9 @@ FROM
 			WHERE
 				(p1.create_by = ? OR FIND_IN_SET(?,p2.managers)  )   and appid= ?`
 
-	err = db.Sqlx.Select(&res, sql, managerUid, managerUid, managerUid, appid)
+	err = db.
+		Sqlx.
+		Select(&res, sql, managerUid, managerUid, managerUid, appid)
 
 	if err != nil {
 		return
@@ -219,11 +240,17 @@ func (this *PannelService) FindNameCount(data request.FindNameCount, managerUid 
 }
 
 func (this *PannelService) DeleteReportTableByID(data model.ReportTable, managerUid int32) (err error) {
-	if _, err := db.SqlBuilder.Delete("report_table").Where(db.Eq{"id": data.Id, "user_id": managerUid}).RunWith(db.Sqlx).Exec(); err != nil {
+	if _, err := db.
+		SqlBuilder.
+		Delete("report_table").
+		Where(db.Eq{"id": data.Id, "user_id": managerUid}).
+		RunWith(db.Sqlx).Exec();err != nil{
 		return err
 	}
 
-	if _, err := db.Sqlx.Exec(`UPDATE pannel SET report_tables = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', report_tables, ','), concat(',',?,','), ','))
+	if _, err := db.
+		Sqlx.
+		Exec(`UPDATE pannel SET report_tables = TRIM(BOTH ',' FROM REPLACE(CONCAT(',', report_tables, ','), concat(',',?,','), ','))
 						 WHERE FIND_IN_SET(?, report_tables) and create_by = ?`, data.Id, data.Id, managerUid); err != nil {
 		return err
 	}
@@ -242,7 +269,13 @@ func (this *PannelService) ReportTableList(appid int, rtType int8, managerUid in
 		where["rt_type"] = rtType
 	}
 
-	sql, args, err := db.SqlBuilder.Select("*").From("report_table").Where(where).OrderBy("rt_type").ToSql()
+	sql, args, err := db.
+		SqlBuilder.
+		Select("*").
+		From("report_table").
+		Where(where).
+		OrderBy("rt_type").
+		ToSql()
 
 	if err != nil {
 		return nil, err

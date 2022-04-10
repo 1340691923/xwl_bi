@@ -15,10 +15,14 @@ type AppService struct {
 }
 
 func (this *AppService) UpdateManager(app model.App, managerUid int32) (err error) {
-	_, err = db.SqlBuilder.Update("app").SetMap(map[string]interface{}{
+	_, err = db.
+		SqlBuilder.
+		Update("app").
+		SetMap(map[string]interface{}{
 		"app_manager": app.AppManager,
-		"update_by":   managerUid,
-	}).Where(db.Eq{"app_id": app.AppId}).RunWith(db.Sqlx).Exec()
+		"update_by":   managerUid}).
+		Where(db.Eq{"app_id": app.AppId}).
+		RunWith(db.Sqlx).Exec()
 	if err != nil {
 		return
 	}
@@ -27,7 +31,11 @@ func (this *AppService) UpdateManager(app model.App, managerUid int32) (err erro
 
 func (this *AppService) Create(app model.App, managerUid int32) (err error) {
 	roolbackFn := func(id int64) {
-		db.SqlBuilder.Delete("app").Where(db.Eq{"id": id}).RunWith(db.Sqlx).Exec()
+		db.SqlBuilder.
+			Delete("app").
+			Where(db.Eq{"id": id}).
+			RunWith(db.Sqlx).
+			Exec()
 	}
 
 	app.AppId = util.GetUUid()
@@ -36,7 +44,10 @@ func (this *AppService) Create(app model.App, managerUid int32) (err error) {
 		app.SaveMonth = 1
 	}
 
-	rows, err := db.SqlBuilder.Insert("app").SetMap(map[string]interface{}{
+	rows, err := db.
+		SqlBuilder.
+		Insert("app").
+		SetMap(map[string]interface{}{
 		"app_name":    app.AppName,
 		"descibe":     app.Descibe,
 		"app_id":      app.AppId,
@@ -127,7 +138,9 @@ func (this AppService) ChangeStatus(app model.App, managerUid int32) (err error)
 	if !util.InArr([]int{1, 0}, *app.IsClose) {
 		return errors.New("无效操作")
 	}
-	_, err = db.SqlBuilder.Update("app").
+	_, err = db.
+		SqlBuilder.
+		Update("app").
 		SetMap(map[string]interface{}{
 			"is_close":  *app.IsClose,
 			"update_by": managerUid}).
@@ -153,8 +166,14 @@ func (this AppService) ChangeStatus(app model.App, managerUid int32) (err error)
 
 func (this *AppService) List(managerUid int32, app model.App) (list []model.App, count int, err error) {
 
-	selectBuilder := db.SqlBuilder.Select("*").From("app")
-	selectBuilder2 := db.SqlBuilder.Select("count(*)").From("app")
+	selectBuilder := db.
+		SqlBuilder.
+		Select("*").
+		From("app")
+	selectBuilder2 := db.
+		SqlBuilder.
+		Select("count(*)").
+		From("app")
 
 	if managerUid != 1 {
 		selectBuilder = selectBuilder.Where(db.Eq{"create_by": managerUid})
@@ -176,7 +195,9 @@ func (this *AppService) List(managerUid int32, app model.App) (list []model.App,
 		return
 	}
 
-	err = db.Sqlx.Select(&list, sql, args...)
+	err = db.
+		Sqlx.
+		Select(&list, sql, args...)
 	if err != nil {
 		return
 	}
@@ -194,7 +215,10 @@ func (this *AppService) ResetAppkey(managerUid int32, app model.App) (err error)
 
 	app.AppKey = util.MD5HexHash(util.Str2bytes(util.GetUUid()))
 
-	_, err = db.SqlBuilder.Update("app").SetMap(map[string]interface{}{
+	_, err = db.
+		SqlBuilder.
+		Update("app").
+		SetMap(map[string]interface{}{
 		"app_key":   app.AppKey,
 		"update_by": managerUid,
 	}).Where(db.Eq{"app_id": app.AppId}).RunWith(db.Sqlx).Exec()

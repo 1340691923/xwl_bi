@@ -10,7 +10,9 @@ import (
 func GetAppidsByToken(token string) (list []model.App, err error) {
 	c, _ := jwt.ParseToken(token)
 
-	selectBuilder := db.SqlBuilder.Select("id,app_name").From("app")
+	selectBuilder := db.SqlBuilder.
+		Select("id,app_name").
+		From("app")
 
 	if c.UserID != 1 {
 		selectBuilder = selectBuilder.Where(fmt.Sprintf("FIND_IN_SET(%v,app_manager)", c.UserID)).Where(db.Eq{"is_close": 0})

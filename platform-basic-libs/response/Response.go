@@ -125,7 +125,7 @@ func (this *Response) Output(write io.Writer, data map[string]interface{}) error
 //得到trace信息
 func (this *Response) getTrace(err error) []string {
 	goEnv := os.Getenv("GO_ENV")
-	errorTrace := []string{}
+	var errorTrace []string
 	if goEnv == "product" {
 		errorTrace = this.DealErr(err)
 	}

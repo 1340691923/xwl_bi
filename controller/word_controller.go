@@ -173,15 +173,11 @@ func GetWordParse(ctx *fasthttp.RequestCtx) {
 					Def      string `json:"def"`
 					Juzi     string `json:"juzi"`
 					TongYiCi string `json:"tong_yi_ci"`
-				}(struct {
-					Def      string `json:"def"`
-					Juzi     string `json:"juzi"`
-					TongYiCi string `json:"tong_yi_ci"`
 				}{
 					Def:      strings.ReplaceAll(selection.Find(".def").Text(), `"`, ""),
 					Juzi:     strings.ReplaceAll(selection.Find("p em").Text(), `"`, ""),
 					TongYiCi: selection.Find(".gray a").Text(),
-				}))
+				})
 		}
 	})
 

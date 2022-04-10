@@ -33,9 +33,12 @@ func (this GmUserService) CheckLogin(username, password string) (token string, e
 		return
 	}
 
-	db.SqlBuilder.Update("gm_user").SetMap(map[string]interface{}{
-		"last_login_time": time.Now().Format(util.TimeFormat),
-	}).Where(db.Eq{"id": gmUser.ID}).RunWith(db.Sqlx).Exec()
+	db.SqlBuilder.
+		Update("gm_user").
+		SetMap(map[string]interface{}{"last_login_time": time.Now().Format(util.TimeFormat)}).
+		Where(db.Eq{"id": gmUser.ID}).
+		RunWith(db.Sqlx).
+		Exec()
 
 	token, err = jwt.GenerateToken(gmUser)
 	if err != nil {

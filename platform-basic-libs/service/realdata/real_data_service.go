@@ -56,7 +56,8 @@ func (this RealDataService) ReportCount(appid string, startTime string, endTime 
 	var failCountArr []count
 	var succCountArr []count
 	var showNameTmpArr []ShowNameTmp
-	mysqlErr := db.Sqlx.Select(&showNameTmpArr, "select event_name,show_name from meta_event where appid = ?", appid)
+	mysqlErr := db.Sqlx.
+		Select(&showNameTmpArr, "select event_name,show_name from meta_event where appid = ?", appid)
 	if util.FilterMysqlNilErr(mysqlErr) {
 		return nil, mysqlErr
 	}

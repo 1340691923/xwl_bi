@@ -12,7 +12,10 @@ type Curd interface {
 }
 
 func SearchList(curd Curd, page, limit int, columns string, list interface{}) (err error) {
-	sqlA := db.SqlBuilder.Select(columns).From(curd.TableName())
+	sqlA := db.
+		SqlBuilder.
+		Select(columns).
+		From(curd.TableName())
 	sqlA = curd.ProcessSqlWhere(sqlA)
 	sql, args, err := sqlA.
 		Limit(uint64(limit)).

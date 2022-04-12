@@ -83,11 +83,12 @@
                           </el-row>
                           <el-row style="padding-top: 5px" :span="6">
                             <a-select
+                              style="width: 75%;"
                               v-model="form.zhibiaoArr[index].eventName"
                               dropdown-match-select-width
                               show-search
                               default-active-first-option
-                              style="width: 120px"
+
                               @change="changeEventNameDisplay(index)"
                             >
 

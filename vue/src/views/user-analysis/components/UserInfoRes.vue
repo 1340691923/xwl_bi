@@ -376,8 +376,8 @@ export default {
     },
     async init() {
       this.form.date = [
-        moment().startOf('day').subtract(1, 'days').format('YYYY-MM-DD'),
-        moment().startOf('day').subtract(1, 'days').format('YYYY-MM-DD')
+        moment().startOf('day').subtract(6, 'days').format('YYYY-MM-DD'),
+        moment().startOf('day').subtract(0, 'days').format('YYYY-MM-DD')
       ]
 
       this.eventOptions = []

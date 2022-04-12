@@ -71,7 +71,7 @@
                               dropdown-match-select-width
                               show-search
                               default-active-first-option
-                              style="width: 120px"
+                              style="width: 75%;"
                               @change="changeEventNameDisplay(index)"
                             >
 
@@ -139,7 +139,7 @@
                               dropdown-match-select-width
                               show-search
                               default-active-first-option
-                              style="width: 120px"
+                              style="width: 75%;"
                               @change="changeEventNameDisplay(index)"
                             >
 

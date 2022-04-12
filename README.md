@@ -1,7 +1,7 @@
   
 ### 求职中，个人微信二维码
 
-![image](http://cdn.ycvod.net/image/weixin.jpg)  
+![image](https://gitee.com/cynthia520/elastic-view/raw/main/static/show_img/weixin.jpg)  
   
  ## 铸龙-用户行为分析系统
 -----------

@@ -1,7 +1,5 @@
   
-### 求职中，个人微信二维码
 
-![image](https://gitee.com/cynthia520/elastic-view/raw/main/static/show_img/weixin.jpg)  
   
  ## 铸龙-用户行为分析系统
 -----------
@@ -34,8 +32,13 @@
  *[用户端体验地址]( http://www.ycvod.net ) 
  
  *[后台体验地址]( http://110.42.167.155:8090/#/dashboard ) 用户名： test ,密码： test123456 （因本人穷，所以只是一台1核2g的服务器撑着，望同是开发人，手下留情）
- 
 
+## 其他开源项目
+* ElasticSearch可视化工具     https://github.com/1340691923/ElasticView
+* 软考成绩快查工具        https://github.com/1340691923/SoftTestMonitor
 
+### 求职中，个人微信二维码
+
+![image](https://gitee.com/cynthia520/elastic-view/raw/main/static/show_img/weixin.jpg)  
  
 

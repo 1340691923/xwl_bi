@@ -70,8 +70,7 @@ func MysqlConsumer() {
 			if err != nil && !strings.Contains(err.Error(), "1062") {
 				logs.Logger.Sugar().Errorf("metaEvent insert", m, err)
 			}
-		default:
-
+	
 		}
 	}
 }

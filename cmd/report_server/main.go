@@ -69,11 +69,11 @@ func main() {
 				logs.Logger.Error(" db.KafkaASyncProducer.Errors", zap.Error(err))
 				time.Sleep(time.Hour)
 			default:
-
+				time.Sleep(10 * time.Second) 
 			}
 		}
 	}()
-	go sinker.ClearDimsCacheByTimeBylocal(time.Second * 20)
+	go sinker.ClearDimsCacheByTimeBylocal(20 * time.Second)
 
 	router := fasthttprouter.New()
 

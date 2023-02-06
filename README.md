@@ -39,6 +39,6 @@
 
 ### 求职中，个人微信二维码
 
-![image](https://gitee.com/cynthia520/elastic-view/raw/main/static/show_img/weixin.jpg)  
+![image](https://gitee.com/acechen/elastic-view/blob/main/resources/show_img/weixin.jpg)  
  
 

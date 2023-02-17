@@ -39,6 +39,12 @@
 
 ### 求职中，个人微信二维码
 
-![image](https://gitee.com/cynthia520/elastic-view/blob/main/resources/show_img/weixin.jpg)  
+<!-- ![image](https://gitee.com/cynthia520/elastic-view/raw/main/static/show_img/weixin.jpg)   -->
+<img src="https://raw.githubusercontent.com/1340691923/ElasticView/main/resources/show_img/weixin.jpg" style="width: 220px"> 
+
+
+### QQ群
+
+<img src="https://raw.githubusercontent.com/1340691923/ElasticView/main/resources/show_img/qq_group.jpg" style="width: 220px">
  
 
